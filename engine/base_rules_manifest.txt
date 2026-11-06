@@ -15,3 +15,6 @@ event=incremented building_shuffle_index,draw=current remaining size.
 No setup sampling or counterfactual coupling validity is claimed.
 draw-instruction-v1:caller counts and explicit schedule use the same draw/recycle
 primitive in a certified unmodified no-Building context;atomic state commit.
+Explicit DrawScope overload permits certified living Building contexts with no
+draw modifiers;caller owns total-population/effect validation. Legacy entrypoints
+retain no-Building guards. Boxes tracked only on owned inplay physical IDs.

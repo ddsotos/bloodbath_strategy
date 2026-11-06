@@ -82,6 +82,9 @@ engine/audit data, not an observation or a complete game sample. No JSON importe
 or generic checkpoint restoration is introduced.
 The subsequent Robot extension advances the current Session schema to 3;
 see M1_GLITCH_ROBOTS.md. The Paperwork fields and commands retain their IDs.
+The reviewed Tableau extension advances current Session schema to 4 and
+permits this frame with known Kale Farms (no draw/discard modifiers). See
+M1_TABLEAU.md; other Building immunity/effects remain unsupported.
 
 ## Run and validation
 

@@ -69,40 +69,77 @@ std::vector<session::Command> robot_script() {
     commands.push_back({session::CommandKind::advance});
     return commands;
 }
+session::Input tableau_fixture(std::uint64_t seed) {
+    auto input = fixture(seed);
+    input.progress.deck = {104, 113, 112, 111, 100};
+    for (const auto id : {111U, 112U, 113U}) input.config.effects[id] = session::Effect::work;
+    input.config.ordered_events.clear();
+    input.config.tableau_enabled = true;
+    input.config.building_catalog = {{0, bloodbath::tableau::Kind::kale_farm}, {1, bloodbath::tableau::Kind::kale_farm}};
+    return input;
+}
+std::vector<session::Command> tableau_script() {
+    using K = session::CommandKind;
+    using A = rules::WorkAction;
+    return {{K::advance}, {K::commit_choice, 0, A::build, {0, 1}, {0}}, {K::commit, 1, A::farm}, {K::resolve_work},
+        {K::advance}, {K::commit_choice, 0, A::build, {0, 1}, {1}}, {K::commit, 1, A::research}, {K::resolve_work},
+        {K::advance}, {K::commit_choice, 0, A::restock, {0, 1}, {0, 1}}, {K::commit, 1, A::farm}, {K::resolve_work},
+        {K::advance}, {K::commit, 0, A::farm}, {K::commit, 1, A::mine}, {K::resolve_work}, {K::advance}};
+}
+enum class Mode { basic, paperwork, robots, tableau };
+session::Input input_for(Mode mode, std::uint64_t seed) {
+    switch (mode) {
+    case Mode::paperwork: return paperwork_fixture(seed);
+    case Mode::robots: return robot_fixture(seed);
+    case Mode::tableau: return tableau_fixture(seed);
+    default: return fixture(seed);
+    }
+}
+std::vector<session::Command> script_for(Mode mode) {
+    switch (mode) {
+    case Mode::paperwork: return paperwork_script();
+    case Mode::robots: return robot_script();
+    case Mode::tableau: return tableau_script();
+    default: return script();
+    }
+}
+const char* label_for(Mode mode) {
+    switch (mode) {
+    case Mode::paperwork: return "conditional-paperwork-v1";
+    case Mode::robots: return "conditional-robots-v1";
+    case Mode::tableau: return "conditional-tableau-v1";
+    default: return "conditional-script-v1";
+    }
+}
 } // namespace
 int main(int argc, char** argv) {
     try {
         std::cout.imbue(std::locale::classic());
-        if (argc == 1) {
-            std::cout << session::serialize_record(session::record(fixture(42), script())) << '\n';
+        if (argc > 2) throw std::invalid_argument("session_demo takes at most one mode");
+        const std::string argument = argc == 2 ? argv[1] : "";
+        Mode mode = Mode::basic;
+        bool benchmark = false;
+        if (argument == "--paperwork") mode = Mode::paperwork;
+        else if (argument == "--robots") mode = Mode::robots;
+        else if (argument == "--tableau") mode = Mode::tableau;
+        else if (argument == "--benchmark") benchmark = true;
+        else if (argument == "--benchmark-paperwork") { mode = Mode::paperwork; benchmark = true; }
+        else if (argument == "--benchmark-robots") { mode = Mode::robots; benchmark = true; }
+        else if (argument == "--benchmark-tableau") { mode = Mode::tableau; benchmark = true; }
+        else if (!argument.empty()) throw std::invalid_argument("unknown session_demo mode");
+        if (!benchmark) {
+            std::cout << session::serialize_record(session::record(input_for(mode, 42), script_for(mode))) << '\n';
             return 0;
         }
-        if (argc == 2 && std::string(argv[1]) == "--paperwork") {
-            std::cout << session::serialize_record(session::record(paperwork_fixture(42), paperwork_script())) << '\n';
-            return 0;
-        }
-        if (argc == 2 && std::string(argv[1]) == "--robots") {
-            std::cout << session::serialize_record(session::record(robot_fixture(42), robot_script())) << '\n';
-            return 0;
-        }
-        if (argc != 2 || (std::string(argv[1]) != "--benchmark" &&
-            std::string(argv[1]) != "--benchmark-paperwork" && std::string(argv[1]) != "--benchmark-robots"))
-            throw std::invalid_argument("usage: session_demo [--paperwork | --robots | --benchmark | --benchmark-paperwork | --benchmark-robots]");
-        const bool with_paperwork = std::string(argv[1]) == "--benchmark-paperwork";
-        const bool with_robots = std::string(argv[1]) == "--benchmark-robots";
         constexpr std::uint64_t count = 1000;
         const auto start = std::chrono::steady_clock::now();
         std::uint64_t checksum = 0;
         for (std::uint64_t seed = 0; seed < count; ++seed) {
-            const auto replay = session::record(with_paperwork ? paperwork_fixture(seed) :
-                                                (with_robots ? robot_fixture(seed) : fixture(seed)),
-                                                with_paperwork ? paperwork_script() :
-                                                (with_robots ? robot_script() : script()));
+            const auto replay = session::record(input_for(mode, seed), script_for(mode));
             checksum += session::verify(replay).progress.clock.absolute_event;
         }
         const auto seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
-        std::cout << "{\"fixture\":\"" << (with_paperwork ? "conditional-paperwork-v1" :
-                                              (with_robots ? "conditional-robots-v1" : "conditional-script-v1"))
+        std::cout << "{\"fixture\":\"" << label_for(mode)
             << "\",\"full_game\":false,\"traces\":"
             << count << ",\"record_and_verify_seconds\":" << seconds << ",\"traces_per_second\":"
             << count / seconds << ",\"checksum\":" << checksum << "}\n";

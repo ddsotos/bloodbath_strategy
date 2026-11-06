@@ -34,6 +34,10 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Glitch now consumes a supplied private Robot source; Butler/Waiter/Mining
   Robot have reviewed nonterminal no-Building paths, conservative loss guards,
   and schema-3 replay/JSON. See M1_GLITCH_ROBOTS.md; other Robots remain open.
+  First typed Building: Kale Farm cost/printed population/PLAY Farm, cumulative
+  own Farm triggers, supported BUILD/RESTOCK choices/boxes, printed population
+  scoring and schema-4 rich traces. Unknown Buildings reject and affected
+  Events block. See M1_TABLEAU.md; full catalog remains open.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

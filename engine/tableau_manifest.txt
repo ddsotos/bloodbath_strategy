@@ -1,0 +1,19 @@
+reviewed-tableau-v1; conditional Kale-Farm-only context,not a full card catalog
+Pinned publisher-authored English reproduction SHA256:
+63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
+p4 BUILD:pay printedcost,put hand card inplay,thenPLAY effects.
+p5 KaleFarm card:cost2money,printed5people,FARM+1food,PLAY:FARM.
+p5 new KaleFarm triggers own PLAYFarm:base4food+all inplay ownKaleFarm bonuses.
+p5 duplicates normally cumulative;physicalIDs/copycounts caller-supplied fixtures,
+not a verified official multiplicity or setup distribution.
+Printed people remain in Building,not transferred tobase onBuild.
+p4 RESTOCK:2boxes onto ownedBuildings,same or split;no base box zone.
+p2 chits not component-limited;no arbitrary box cap;uint64 overflow rejects.
+p7 total population=base+printedBuilding people;zero base is not zero total.
+Only known KaleFarms may be inplay;external modifiers must be certified absent.
+Canonical FARM base-then-bonuses order is safe for these additive commutative
+effects only;no claim it represents general ordered/optional trigger resolution.
+Both choices locked before scheduled apply;known affordable BUILD options and
+all canonical two-box allocations depend only on own hand and public state.
+Raw draw resolver certifies living state and no draw-specific modifiers;legacy
+no-Building draw/Work entry points retain stricter guards.

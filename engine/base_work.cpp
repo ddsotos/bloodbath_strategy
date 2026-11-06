@@ -1,5 +1,6 @@
 #include "engine/base_work.hpp"
 
+#include <algorithm>
 #include <limits>
 #include <set>
 #include <stdexcept>
@@ -16,7 +17,14 @@ void validate_cards(const State& state) {
         for (const auto card : zone)
             if (!cards.insert(card).second) throw std::invalid_argument("duplicate physical card ID");
     };
-    for (const auto& colony : state.colonies) { add(colony.hand); add(colony.buildings); }
+    for (const auto& colony : state.colonies) {
+        add(colony.hand); add(colony.buildings);
+        for (const auto& [card, count] : colony.boxes) {
+            (void)count;
+            if (std::find(colony.buildings.begin(), colony.buildings.end(), card) == colony.buildings.end())
+                throw std::invalid_argument("boxes must belong to an owned Building");
+        }
+    }
     add(state.building_deck);
     add(state.building_discard);
     if (cards.size() != 90) throw std::invalid_argument("base catalog must contain 90 physical IDs");
@@ -57,6 +65,16 @@ State setup_fragment(std::array<std::vector<Card>, 2> hands, std::vector<Card> r
 BuildingDrawRecord draw_buildings(State& state, std::array<std::uint32_t, 2> counts,
     std::array<Player, 2> schedule, std::uint64_t seed, EffectScope scope) {
     (void)WorkBatch(state, seed, scope); // Reuse the certified context/card boundary.
+    return draw_buildings(state, counts, schedule, seed, DrawScope::caller_verified_unmodified_draw);
+}
+BuildingDrawRecord draw_buildings(State& state, std::array<std::uint32_t, 2> counts,
+    std::array<Player, 2> schedule, std::uint64_t seed, DrawScope scope) {
+    if (scope != DrawScope::caller_verified_unmodified_draw)
+        throw std::invalid_argument("unverified draw modifiers");
+    validate_cards(state);
+    for (const auto& colony : state.colonies)
+        if (!colony.resources.people && colony.buildings.empty())
+            throw std::invalid_argument("draw requires a caller-certified living colony");
     if (!((schedule[0] == 0 && schedule[1] == 1) || (schedule[0] == 1 && schedule[1] == 0)))
         throw std::invalid_argument("draw schedule must be a player permutation");
     auto next = state;
@@ -87,8 +105,11 @@ Observation WorkBatch::observe(Player p) const {
     check_player(p);
     std::optional<Card> top;
     if (!state_.building_discard.empty()) top = state_.building_discard.back();
-    return {p, {state_.colonies[0].resources, state_.colonies[1].resources},
-            state_.colonies[p].hand, top};
+    Observation observation{p, {state_.colonies[0].resources, state_.colonies[1].resources},
+                            state_.colonies[p].hand, top};
+    observation.public_buildings = {state_.colonies[0].buildings, state_.colonies[1].buildings};
+    observation.public_boxes = {state_.colonies[0].boxes, state_.colonies[1].boxes};
+    return observation;
 }
 void WorkBatch::commit(Player p, WorkAction action) {
     check_player(p);

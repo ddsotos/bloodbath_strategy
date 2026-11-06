@@ -7,7 +7,7 @@ Research project to build a **strong two-player AI** for *Moon Colony Bloodbath*
 M1 now also includes [conditional base-Work primitives](docs/M1_IMPLEMENTATION.md)
 reviewed against a pinned reproduction of the publisher rulebook. They support
 Mine/Farm/Research without action modifiers, supplied setup fragments, Building
-deck recycling and replay. Full card effects and playable official games remain
+deck recycling and replay. Complete card coverage and playable official games remain
 unimplemented; this subset must not drive opening-strategy conclusions.
 
 The next M1 slice adds [progression and forced population-loss primitives](docs/M1_PROGRESSION_POPULATION.md):
@@ -25,7 +25,9 @@ explicitly. This remains a partial ruleset with synthetic scenario inputs.
 `session_demo --paperwork` exports the new scenario. Shared-supply ambiguity
 stops explicitly. The [Glitch/Robot extension](docs/M1_GLITCH_ROBOTS.md) adds a
 private supplied Robot source and three nonterminal Robot handlers. Run
-`session_demo --robots`; current Session Replay/JSON use schema 3.
+`session_demo --robots`. [Reviewed Kale Farm Tableau](docs/M1_TABLEAU.md) adds
+opt-in BUILD/RESTOCK, PLAY/FARM effects and printed population scoring. Run
+`session_demo --tableau`; current Session Replay/JSON use schema 4.
 
 ## Build and verify
 

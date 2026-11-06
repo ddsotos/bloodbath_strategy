@@ -1,4 +1,4 @@
-conditional-session-v3; not a complete official game or legal setup sampler
+conditional-session-v4; not a complete official game or legal setup sampler
 Publisher-authored English rulebook reproduction SHA256
 63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
 p2 Accident card image:-3 people;p6 loss Events affect each player.
@@ -38,3 +38,10 @@ blocked_robot_loss stops before ALL population/tail mutation,with no death.
 Robot-deck exhaustion is blocked_robot_deck,not official end or a reshuffle.
 Unknown Robot blocks before any effects;no generic inferred damage.
 Replay/JSON schema3 includes private ordered_robots and next_robot index.
+Explicit tableau opt-in supports reviewed KaleFarm-only inplay context.
+Caller scope now excludes unmodeled external effects;known KaleFarm triggers run.
+Schema4 records Building catalog,opt-in,publicboxes,richWorkchoices/effectrecords.
+Population-changing Event/Robot paths block before mutation if any Buildings
+exist;no silent use of no-Building formulas. InstructionManual counts printed
+people. Paperwork has no KaleFarm interaction;its certified draw frame supports it.
+Session score totals capped at signed64,including new printed people onBuild.
