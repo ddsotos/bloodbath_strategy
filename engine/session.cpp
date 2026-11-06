@@ -8,6 +8,9 @@
 
 namespace bloodbath::session {
 namespace {
+bool robot_effect(Effect effect) {
+    return effect == Effect::robot_butler || effect == Effect::robot_waiter || effect == Effect::mining_robot;
+}
 void validate(const Input& input) {
     // Reuse the subset's living/no-buildings/unique-90-card boundary.
     (void)base_rules::WorkBatch(input.colonies, input.config.seed, input.config.scope);
@@ -26,14 +29,22 @@ void validate(const Input& input) {
         if (!used.insert(card).second) throw std::invalid_argument("Event queue duplicates a progression instance");
         const auto effect = input.config.effects.find(card);
         if (effect != input.config.effects.end() &&
-            (effect->second == Effect::work || effect->second == Effect::trouble))
+            (effect->second == Effect::work || effect->second == Effect::trouble || robot_effect(effect->second)))
             throw std::invalid_argument("a known starting card is not an Event queue entry");
+    }
+    for (const auto card : input.config.ordered_robots) {
+        if (!used.insert(card).second) throw std::invalid_argument("Robot deck duplicates a progression instance");
+        const auto effect = input.config.effects.find(card);
+        if (effect != input.config.effects.end() && effect->second != Effect::unsupported &&
+            !robot_effect(effect->second))
+            throw std::invalid_argument("a known non-Robot effect is not a Robot deck entry");
     }
     for (const auto& [card, effect] : input.config.effects) {
         (void)card;
         if (effect != Effect::work && effect != Effect::trouble && effect != Effect::hunger &&
             effect != Effect::accident && effect != Effect::instruction_manual &&
-            effect != Effect::unsupported && effect != Effect::paperwork)
+            effect != Effect::unsupported && effect != Effect::paperwork && effect != Effect::glitch &&
+            !robot_effect(effect))
             throw std::invalid_argument("invalid effect tag");
     }
 }
@@ -127,6 +138,42 @@ Phase Session::advance() {
         next.paperwork.reset();
         next.phase = Phase::paperwork_draw_order;
         break;
+    case Effect::glitch:
+        if (next.next_robot == config_.ordered_robots.size()) {
+            next.phase = Phase::blocked_robot_deck;
+        } else {
+            deck.add_group({config_.ordered_robots[next.next_robot]});
+            ++next.next_robot;
+            deck.finish_active();
+        }
+        break;
+    case Effect::robot_butler:
+    case Effect::robot_waiter:
+    case Effect::mining_robot: {
+        const auto effect = effect_of(config_, reveal->card);
+        const std::uint64_t amount = effect == Effect::mining_robot ? 6 : 4;
+        bool possible_failure = false;
+        for (const auto& colony : next.colonies.colonies)
+            possible_failure = possible_failure || colony.resources.people <= amount;
+        if (possible_failure) {
+            // Do not settle whether post-loss Robot instructions run after first death.
+            next.phase = Phase::blocked_robot_loss;
+            break;
+        }
+        const std::string cause = effect == Effect::mining_robot ? "Mining Robot" :
+            (effect == Effect::robot_butler ? "Robot Butler" : "Robot Waiter");
+        for (Player p = 0; p < 2; ++p) {
+            population::Loss loss({next.colonies.colonies[p].resources.people, {}, {}}, p,
+                                  amount, reveal->clock, cause);
+            next.colonies.colonies[p].resources.people = loss.snapshot().base_people;
+        }
+        // No Buildings => no boxes for Butler, no Mine bonuses for Mining Robot.
+        if (effect == Effect::robot_waiter)
+            for (auto& colony : next.colonies.colonies)
+                colony.resources.food -= std::min(std::uint64_t{2}, colony.resources.food);
+        deck.finish_active();
+        break;
+    }
     case Effect::unsupported:
         next.phase = Phase::blocked_unknown_card;
         break;
@@ -233,7 +280,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{2, manifest_hash, std::move(input), commands, {}};
+    Replay replay{3, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -241,7 +288,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 2 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 3 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

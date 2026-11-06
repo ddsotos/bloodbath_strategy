@@ -25,6 +25,11 @@ case on p6. See [M1_SESSION.md](M1_SESSION.md) for exact support and stops.
 rule, immunity and feasible quotas, while separating explicit scheduling
 conventions from the printed rules. Implementation limits are in M1_PAPERWORK.md.
 
+[M1_ROBOT_AUDIT.md](M1_ROBOT_AUDIT.md) reviews Glitch and three illustrated
+Robot effects against the same pinned reproduction. No complete Robot catalog
+or physical-edition reconciliation is established; M1_GLITCH_ROBOTS.md records
+the safe conditional paths and explicit terminal/tail guards.
+
 ## Sources
 
 | ID | Source | Verification status | Limits |

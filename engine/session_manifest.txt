@@ -1,4 +1,4 @@
-conditional-session-v2; not a complete official game or legal setup sampler
+conditional-session-v3; not a complete official game or legal setup sampler
 Publisher-authored English rulebook reproduction SHA256
 63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
 p2 Accident card image:-3 people;p6 loss Events affect each player.
@@ -28,3 +28,13 @@ avoid unverified timing involving newly discarded cards from the same Event.
 p8 discard min(2,current hand size);hand discard is not in-play Building LOST.
 Decision index once when draws complete;administrative schedules do not count.
 Replay/JSON schema2 records draw order,draw metadata,discard choices and order.
+p3,p6 Glitch adds next Robot once table from supplied already-shuffled private
+Robot deck,to Progress top;not one per player or a fresh resample each time.
+p9 RobotButler:lose4people then1box(noBuildings=>noboxes tolose).
+p9 RobotWaiter:lose4people then2food;lose min(2,availablefood).
+p9 MiningRobot:lose6people thenbonus per namedMine(noBuildings=>zero).
+All Robot paths require both players strictly above printed loss;otherwise
+blocked_robot_loss stops before ALL population/tail mutation,with no death.
+Robot-deck exhaustion is blocked_robot_deck,not official end or a reshuffle.
+Unknown Robot blocks before any effects;no generic inferred damage.
+Replay/JSON schema3 includes private ordered_robots and next_robot index.

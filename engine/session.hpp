@@ -7,17 +7,21 @@
 
 namespace bloodbath::session {
 inline constexpr const char* manifest_hash = BLOODBATH_SESSION_HASH;
-enum class Effect { work, trouble, hunger, accident, instruction_manual, unsupported, paperwork };
+enum class Effect { work, trouble, hunger, accident, instruction_manual, unsupported, paperwork,
+                    glitch, robot_butler, robot_waiter, mining_robot };
 enum class Phase {
     ready, work_decision, blocked_unknown_card, blocked_event_queue,
     blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal,
-    paperwork_draw_order, paperwork_discard, blocked_shared_draw
+    paperwork_draw_order, paperwork_discard, blocked_shared_draw,
+    blocked_robot_deck, blocked_robot_loss
 };
 struct Config {
     std::uint64_t seed = 0;
     // Caller-reviewed instance mapping and Event order, not an invented catalog/setup.
     std::map<progression::Card, Effect> effects;
     std::vector<progression::Card> ordered_events;
+    // Supplied already-shuffled Robot deck in top-first order. Private engine truth.
+    std::vector<progression::Card> ordered_robots;
     // Certifies absence of ALL relevant modifiers (including Event/terminal effects).
     base_rules::EffectScope scope = base_rules::EffectScope::unverified;
     bool operator==(const Config&) const = default;
@@ -47,6 +51,7 @@ struct Snapshot {
     Phase phase = Phase::ready;
     std::array<std::optional<base_rules::WorkAction>, 2> commitments;
     std::size_t next_event = 0;
+    std::size_t next_robot = 0;
     std::optional<OfficialOutcome> official;
     std::array<std::optional<DeathRecord>, 2> deaths;
     std::optional<TerminalEvidence> terminal_evidence;
@@ -89,7 +94,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 2;
+    std::uint32_t schema = 3;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;
