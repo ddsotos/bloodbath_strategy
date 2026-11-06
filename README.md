@@ -4,6 +4,12 @@ Research project to build a **strong two-player AI** for *Moon Colony Bloodbath*
 
 **Status:** M0 scaffold and initial M1 observation/commitment boundary implemented with explicitly labelled toy fixtures. No official gameplay, trained AI, or validated strategic result exists. See [implementation notes](docs/M0_IMPLEMENTATION.md) and [source ledger](docs/RULE_PROVENANCE.md).
 
+M1 now also includes [conditional base-Work primitives](docs/M1_IMPLEMENTATION.md)
+reviewed against a pinned reproduction of the publisher rulebook. They support
+Mine/Farm/Research without action modifiers, supplied setup fragments, Building
+deck recycling and replay. Full card effects and playable official games remain
+unimplemented; this subset must not drive opening-strategy conclusions.
+
 ## Build and verify
 
 Requires CMake 3.20+ and a C++20 compiler. Tests use the standard library;
