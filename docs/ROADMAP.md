@@ -57,3 +57,6 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
 ## First executable Codex prompt
 
 > Read AGENTS.md and docs/*.md. Implement M0 only, including a compiling C++20/CMake skeleton with CTest; EventClock/DeathRecord/OfficialOutcome/ShadowOutcome and seeded replay interfaces; toy tests for first death freezing and paired official/shadow outcomes. Do not invent Moon Colony Bloodbath card rules. Report build/test commands and any rulebook gaps. Open a focused PR.
+
+## Execution policy
+See [MULTI_AGENT.md](MULTI_AGENT.md): lead owns design/integration; delegate independent source verification, black-box test planning and build/CI to up to three subagents when supported, with disjoint file ownership and review gates. Do not block M0 on subagent availability.
