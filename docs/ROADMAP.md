@@ -17,6 +17,10 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   and initial resources. Conditional Mine/Farm/Research, deferred Building
   reshuffle and replay are implemented; complete setup and other transitions
   remain open. See M1_IMPLEMENTATION.md.
+  Additional partial coverage: Progress deck recycle/addition/clock primitives
+  and conditional forced population loss with explicit Building choices and
+  failure diagnostics. Unknown LOST and terminal interruption remain blocked.
+  See M1_PROGRESSION_POPULATION.md; whole-game transitions are still incomplete.
 - [ ] Add verified card effects one at a time with fixtures and provenance.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.

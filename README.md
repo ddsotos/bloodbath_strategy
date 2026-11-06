@@ -10,6 +10,11 @@ Mine/Farm/Research without action modifiers, supplied setup fragments, Building
 deck recycling and replay. Full card effects and playable official games remain
 unimplemented; this subset must not drive opening-strategy conclusions.
 
+The next M1 slice adds [progression and forced population-loss primitives](docs/M1_PROGRESSION_POPULATION.md):
+deferred recycling/top insertion, decision clocks, explicit Building-loss choices,
+and failure diagnostics. Unverified LOST effects and terminal interruption order
+stop explicitly; complete game dispatch and scoring remain pending.
+
 ## Build and verify
 
 Requires CMake 3.20+ and a C++20 compiler. Tests use the standard library;

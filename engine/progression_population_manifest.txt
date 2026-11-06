@@ -1,0 +1,30 @@
+progression-population-subset-v1; conditional primitives, not a playable game
+Evidence: publisher-authored English rulebook pinned reproduction SHA256
+63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
+Publisher/current-file/physical-edition byte equality remains unverified.
+p4,p8: Progress reveal only after current resolution; recycle only when next
+card needed and deck empty; cards added on top; grouped additions shuffle first.
+p3,p8: top face-up card observable, no lower-discard browsing or deck-order leak.
+p7: pay population loss from base; if insufficient choose Building, transfer
+all printed people, discard Building and boxes, resolve LOST before continuing.
+Only caller-verified absent LOST effects supported; unknown effects stop.
+p7: zero total or inability to pay ends colony; no tie/interrupt order invented.
+Conventions: opaque caller physical IDs; vector back top; active tracked separately
+from completed discard until finish_active, logically already public.
+No card catalog, effect dispatch, Trouble/event-order default, setup, official
+scoring, horizon, synthetic deficit state or shadow policy is implemented here.
+Failed impossible payment retains before-payment state; shortfall is diagnostic
+only, not a claim of final official population or score.
+If total people insufficient while buildings remain, needs_terminal_rule stops
+without death/destruction/payment: interruption vs LOST order is unverified.
+Clock initial zeros; every Progress reveal increments absolute and position;
+reshuffle increments cycle and resets position to1 on its first reveal;
+explicit active-card decisions increment only decision counter.
+Snapshots+seed reproduce progression. Fisher-Yates with event-splitmix64-v1:
+source=progression; event=shuffle_index or addition_index; draw=2*size for
+deck recycle,2*size+1 for grouped additions. Indices persist independently.
+Duplicate physical IDs rejected; all counters uint64 and overflow rejected.
+Population input amount limited to signed64 DeathRecord range. Building people
+and base total uint64, overflow rejected. Nonnegative official accounting only.
+Loss input must be a living colony; already-zero input rejected to avoid
+inventing a prior first-death timestamp. Only newly detected failure is stamped.
