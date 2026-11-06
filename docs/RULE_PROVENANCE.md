@@ -17,6 +17,10 @@ primitives against the same pinned reproduction. See
 [implementation boundaries](M1_PROGRESSION_POPULATION.md), especially the
 unresolved terminal interruption and unknown LOST effect guards.
 
+[M1_SESSION_AUDIT.md](M1_SESSION_AUDIT.md) reviews the first connected card paths,
+including Accident's printed three-person loss on p2 and Hunger's empty-tableau
+case on p6. See [M1_SESSION.md](M1_SESSION.md) for exact support and stops.
+
 ## Sources
 
 | ID | Source | Verification status | Limits |

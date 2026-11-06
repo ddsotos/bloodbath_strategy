@@ -15,6 +15,12 @@ deferred recycling/top insertion, decision clocks, explicit Building-loss choice
 and failure diagnostics. Unverified LOST effects and terminal interruption order
 stop explicitly; complete game dispatch and scoring remain pending.
 
+A [conditional session](docs/M1_SESSION.md) now joins these parts for Work,
+Trouble, no-Building Hunger, Accident and Instruction Manual. `session_demo`
+exports a reproducible supplied-scenario trace as JSON; `--benchmark` measures
+trace recording/verification. Unknown effects, unpayable losses and ties stop
+explicitly. This remains a partial ruleset with synthetic scenario inputs.
+
 ## Build and verify
 
 Requires CMake 3.20+ and a C++20 compiler. Tests use the standard library;
