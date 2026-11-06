@@ -2,6 +2,12 @@
 
 **Do not assume any item is verified merely because it was mentioned during strategy discussion.** Before claiming gameplay fidelity, cite the specific authoritative rulebook page/section and card text in a versioned rule manifest.
 
+M0 source discovery is recorded in [RULE_PROVENANCE.md](RULE_PROVENANCE.md).
+No official gameplay item below is verified by the toy engine. The separate
+[toy manifest](../engine/toy_manifest.txt) defines only test conventions and is
+SHA-256 identified in replay/experiment records. Its thresholds, cycles,
+actions, scores and bounded horizon do not resolve the official checklist.
+
 ## Verify official rules before full implementation
 - [ ] Full official two-player setup: starting hand, resources, initial population and deck composition.
 - [ ] Deck and cycle semantics: which draws define a round/cycle, shuffle points, insertions, and final horizon.

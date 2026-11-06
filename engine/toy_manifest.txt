@@ -1,0 +1,21 @@
+toy-v1; NO OFFICIAL MOON COLONY BLOODBATH RULES
+Two players start at signed toy population [2,2]. Hands/deck are opaque test tokens.
+Actions: wait adds 0; gain adds 1. Live normal agent chooses gain.
+Both commit before reveal. Each event applies both deltas before death checks.
+Each player's hazard is bounded(progression,event,player,3)+1.
+Every third event adds 7 to each player's toy population (including survivors).
+First nonpositive population records death and permanently selects toy-wait-v1.
+First event with any death freezes official scores; sole dead player loses;
+both dead means draw. No death by caller horizon means draw at horizon.
+Score is signed toy population, never an official game score.
+toy-signed-v1 adapter permits signed state after termination with same toy deltas.
+Both players continue to the same explicit horizon in [1,100000].
+Clock initial [0,0,0,0]; event e => [e,(e-1)/4,(e-1)%4+1,e].
+Event is one simultaneous toy decision and one progression event, not a game round.
+No synthetic score adjustments beyond the toy transitions above.
+RNG event-splitmix64-v1; source IDs setup=0,progression=1,building=2,action=3,shadow=4.
+mix(x): add 9e3779b97f4a7c15; xor>>30,mul bf58476d1ce4e5b9;
+xor>>27,mul 94d049bb133111eb; xor>>31; all uint64 arithmetic.
+sample=mix(mix(mix(mix(seed)^source)^event)^draw).
+bounded rejects values below (-bound)%bound; retry value=mix(value^mix(++retry)).
+Coupling only shares identical source/event/draw identities; no deck insertion claim.
