@@ -12,6 +12,11 @@ stage. Conditional setup/base-Work primitives are implemented as specified in
 [M1_IMPLEMENTATION.md](M1_IMPLEMENTATION.md); catalog completeness, edition and
 real-game resolution remain open.
 
+The follow-up [progression/loss audit](M1_PROGRESS_AUDIT.md) reviews p4/p7/p8
+primitives against the same pinned reproduction. See
+[implementation boundaries](M1_PROGRESSION_POPULATION.md), especially the
+unresolved terminal interruption and unknown LOST effect guards.
+
 ## Sources
 
 | ID | Source | Verification status | Limits |

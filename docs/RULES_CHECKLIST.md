@@ -45,3 +45,9 @@ in a caller-verified unmodified context with no buildings. Complete setup,
 BUILD/RESTOCK targeting, Twist effects and card catalog are still unimplemented.
 An explicit caller schedule for simultaneous draws is recorded as a convention,
 not an official priority rule. No full first-Work comparison is possible yet.
+
+Progress deck recycling/insertion (p4,p8) and conditional population loss (p7)
+are now implemented as separate primitives; see M1_PROGRESSION_POPULATION.md.
+They do not verify the Progress catalog, actual cycle horizon or official end
+interruption ordering. Insufficient total with Buildings still present is an
+explicit unresolved boundary; ties and final scores remain unimplemented.
