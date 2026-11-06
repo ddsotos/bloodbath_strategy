@@ -2,7 +2,25 @@
 
 Research project to build a **strong two-player AI** for *Moon Colony Bloodbath* and determine **whether, and under which opening conditions, Research/draw on the first Work is optimal**.
 
-**Status:** design-first bootstrap. No full rules implementation, trained AI, or validated result exists yet. Rule details and terminology must be checked against an authoritative rulebook before implementing them.
+**Status:** M0 scaffold and initial M1 observation/commitment boundary implemented with explicitly labelled toy fixtures. No official gameplay, trained AI, or validated strategic result exists. See [implementation notes](docs/M0_IMPLEMENTATION.md) and [source ledger](docs/RULE_PROVENANCE.md).
+
+## Build and verify
+
+Requires CMake 3.20+ and a C++20 compiler. Tests use the standard library;
+Python 3 enables an additional independent JSON parsing check.
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build --config Debug
+ctest --test-dir build -C Debug --output-on-failure
+```
+
+Run `build/Debug/replay_verify.exe` on a Visual Studio build, or
+`build/replay_verify` on a single-configuration build. An optional replay path
+verifies a stored toy log; `--json` emits a structured toy experiment record.
+The default no-argument command verifies and prints a seed-42, horizon-12 toy replay.
+The trailing success line is diagnostic; use the embedded `replay` string in JSON
+when saving a replay file. See the implementation notes for the complete format.
 
 ## Agreed research constraints
 

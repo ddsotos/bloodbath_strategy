@@ -3,15 +3,15 @@
 Each milestone must produce code + tests + a brief reproducible benchmark when applicable. Stop at rule ambiguities; document them in RULES_CHECKLIST rather than making up rules.
 
 ## M0 — Source-of-truth and scaffolding (first PR)
-- [ ] Document authoritative rulebook source/version and card catalog completeness.
-- [ ] Create C++20 CMake project with CTest and a minimal smoke test.
-- [ ] Define versioned `EventClock`, `DeathRecord`, `OfficialOutcome`, `ShadowOutcome` types.
-- [ ] Define seeded RNG and deterministic replay log contract.
-- [ ] Set up formatting, compiler warnings and CI where available.
+- [x] Document authoritative rulebook source/version and card catalog completeness (source found; edition and catalog explicitly unverified in RULE_PROVENANCE.md).
+- [x] Create C++20 CMake project with CTest and a minimal smoke test.
+- [x] Define versioned `EventClock`, `DeathRecord`, `OfficialOutcome`, `ShadowOutcome` types.
+- [x] Define seeded RNG and deterministic replay log contract.
+- [x] Set up formatting, compiler warnings and CI where available (CI configured; local MSVC tested).
 **Accept:** clean build/test instructions, no hidden rules assumptions, sample toy event replay reproducible.
 
 ## M1 — Minimal verified two-player engine
-- [ ] Model full/private state vs player observations and simultaneous commitments.
+- [x] Model full/private state vs player observations and simultaneous commitments (toy contract only; official visibility still unverified).
 - [ ] Apply verified setup, basic Work choices, progression/death/terminal transitions.
 - [ ] Add verified card effects one at a time with fixtures and provenance.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
