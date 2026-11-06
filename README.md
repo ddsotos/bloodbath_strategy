@@ -33,3 +33,6 @@ After those foundations pass, implement complete rules and cards incrementally w
 ## Research integrity
 
 A shadow continuation does **not** change the official loss. A colony that first reached zero (or otherwise died under official rules) remains marked dead for evaluation even if a synthetic continuation later accumulates population. Any scoring formula using death timing, severity, and shadow score is experimental; log raw components so alternative objectives can be tested without rerunning games.
+
+## Codex delegation
+See [Multi-agent collaboration policy](docs/MULTI_AGENT.md). Preferred setup is a Sol lead with up to three Luna subagents for independently verifiable rule research, tests, and CI. Availability of those exact models/subagents depends on the Codex environment; serial work is an acceptable fallback. The lead owns integration and scientific decisions.
