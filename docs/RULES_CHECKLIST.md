@@ -11,7 +11,7 @@ actions, scores and bounded horizon do not resolve the official checklist.
 ## Verify official rules before full implementation
 - [ ] Full official two-player setup: starting hand, resources, initial population and deck composition.
 - [ ] Deck and cycle semantics: which draws define a round/cycle, shuffle points, insertions, and final horizon.
-- [ ] Exact first Work action names and number of drawn cards for Research.
+- [x] Exact Work action names and Research draw count reviewed against pinned publisher-authored reproduction, p4; publisher/physical-edition match remains open. See M1_RULE_AUDIT.md.
 - [ ] Simultaneous Work selection/reveal and ordering of resolution.
 - [ ] Complete building/event/robot/development catalog and triggered effects; which effects are optional.
 - [ ] How population on buildings is counted, lost, paid, or made negative.
@@ -35,3 +35,13 @@ actions, scores and bounded horizon do not resolve the official checklist.
 ## Change management
 
 Label every rule entry **verified**, **unverified**, or **shadow convention**. Include rulebook edition/URL, original excerpt location, examples, and test fixture reference. If text is unclear, write a failing/pending test and ask for source clarification rather than filling gaps from intuition.
+
+## M1 partial coverage
+
+Verified against the pinned reproduction: initial base resources and Building
+hand count (p3), base Mine/Farm/Research effects (p4), draw-time Building recycle
+and discard inspection limit (p8). `engine/base_work.*` implements these only
+in a caller-verified unmodified context with no buildings. Complete setup,
+BUILD/RESTOCK targeting, Twist effects and card catalog are still unimplemented.
+An explicit caller schedule for simultaneous draws is recorded as a convention,
+not an official priority rule. No full first-Work comparison is possible yet.

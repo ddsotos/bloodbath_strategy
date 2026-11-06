@@ -1,0 +1,15 @@
+base-work-subset-v1; conditional rule primitives, NOT a playable official game
+Publisher-authored English rulebook, mirrored PDF SHA256:
+63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
+p2: 90 physical Building cards; synthetic test IDs do not define card text.
+p3: 30 base people,4 money,4 food;4 Building cards per player;private hands.
+p4: Mine adds4 money,Farm adds4 food,Research draws2 Building cards.
+p8: Building draw reshuffles discards on demand; perform available effects only.
+p3,p8: discard face up but no browsing; observation exposes only top discard.
+All resource gains apply only in caller-verified absence of action modifiers.
+Building effects, Twists, Build,Restock,Progress,death/scoring are unsupported.
+Adapter conventions: vector back is top; caller supplies complete90-ID deal.
+Explicit caller resolution permutation is logged; not official player priority.
+Shuffle: Fisher-Yates descending with event-splitmix64-v1 building stream;
+event=incremented building_shuffle_index,draw=current remaining size.
+No setup sampling or counterfactual coupling validity is claimed.

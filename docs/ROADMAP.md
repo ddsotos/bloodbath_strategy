@@ -13,6 +13,10 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
 ## M1 — Minimal verified two-player engine
 - [x] Model full/private state vs player observations and simultaneous commitments (toy contract only; official visibility still unverified).
 - [ ] Apply verified setup, basic Work choices, progression/death/terminal transitions.
+  Partial: `base_rules::setup_fragment` validates supplied 90-ID Building deals
+  and initial resources. Conditional Mine/Farm/Research, deferred Building
+  reshuffle and replay are implemented; complete setup and other transitions
+  remain open. See M1_IMPLEMENTATION.md.
 - [ ] Add verified card effects one at a time with fixtures and provenance.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.

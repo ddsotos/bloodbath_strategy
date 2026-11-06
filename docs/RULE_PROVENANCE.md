@@ -4,6 +4,14 @@ Checked: 2026-11-06. Scope: M0 source discovery for the English base game,
 restricted to two-player research. Finding a source does not verify every rule
 or establish that the engine implements it.
 
+M1 update: pages of a pinned publisher-authored reproduction have now been
+visually audited. See [M1_RULE_AUDIT.md](M1_RULE_AUDIT.md) for the reviewed
+facts, the mirror's SHA-256, and its still-unverified byte equality to the
+publisher-hosted file. The M0 discovery statements below describe the earlier
+stage. Conditional setup/base-Work primitives are implemented as specified in
+[M1_IMPLEMENTATION.md](M1_IMPLEMENTATION.md); catalog completeness, edition and
+real-game resolution remain open.
+
 ## Sources
 
 | ID | Source | Verification status | Limits |
