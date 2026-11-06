@@ -42,8 +42,9 @@ are relative to this trace, not a reconstructed earlier game.
 | Hunger | p6 | No Buildings means no food payment/loss and +2 base people for both. |
 | Accident | p2 card image, p6 | Printed loss is 3 for each player. Resolve only when both have at least 3 people. |
 | Instruction Manual | p6,p7 | Stop and award the conditional official result to a unique greatest population; leave ties unresolved. |
+| Paperwork | p6,p8 | Conditional draw-one/discard-two frame; see M1_PAPERWORK.md for schedules, privacy and scarce-supply stop. |
 
-BUILD, RESTOCK, Paperwork, Glitch, Robot/Twist/Development/Perk effects and all
+BUILD, RESTOCK, Glitch, Robot/Twist/Development/Perk effects and all
 Building triggers remain unsupported. Unknown effects retain the active card;
 they are never discarded as no-ops. The session does not implement a rescue or
 fallback action to pass an unresolved boundary.
@@ -76,6 +77,7 @@ calls do nothing and Work actions reject. There is no shadow continuation here.
 All current phases, in numeric JSON order: ready=0, work_decision=1,
 blocked_unknown_card=2, blocked_event_queue=3, blocked_population_payment=4,
 unresolved_tie=5, no_progress_cards=6, official_terminal=7.
+The schema-2 extension adds Paperwork phases 8..10; see M1_PAPERWORK.md.
 
 ## Observation and records
 
@@ -97,6 +99,8 @@ is named `conditional_official_outcome`. Shadow is null and score adjustments
 are zero. No incomplete trace is promoted to a comparable full-game sample.
 The existing M0 JSON/text formats are unchanged. No C++ JSON importer or
 versioned persistent-checkpoint restoration is implemented in this slice.
+Paperwork extends Session Replay/JSON to schema 2 and appends discard/frame
+data; schema 1 session records reject. M0 formats remain unchanged.
 
 ## Run and validate
 
@@ -140,7 +144,7 @@ must be 6000. The fixture contains no shuffle, so these seeds document the run
 rather than prove stochastic game coverage. Seeded reshuffle coverage belongs
 to the contract tests.
 
-Recorded baseline: Windows x64, AMD Ryzen 7 3700X 8-Core Processor, MSVC 19.51,
+Recorded baseline before Paperwork (session schema 1): Windows x64, AMD Ryzen 7 3700X 8-Core Processor, MSVC 19.51,
 CMake 4.4.4, Release: 1,000 record+verify traces in **0.0631695 seconds**,
 approximately **15,830 traces/sec**, checksum 6000. This is one local measurement
 of this small supplied scenario, not a claim about full-game throughput.

@@ -21,6 +21,10 @@ exports a reproducible supplied-scenario trace as JSON; `--benchmark` measures
 trace recording/verification. Unknown effects, unpayable losses and ties stop
 explicitly. This remains a partial ruleset with synthetic scenario inputs.
 
+[Paperwork](docs/M1_PAPERWORK.md) now adds private draw/discard frames;
+`session_demo --paperwork` exports the new scenario. Shared-supply ambiguity
+stops explicitly, and Session Replay/JSON use schema 2.
+
 ## Build and verify
 
 Requires CMake 3.20+ and a C++20 compiler. Tests use the standard library;

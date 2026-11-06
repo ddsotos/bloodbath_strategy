@@ -28,6 +28,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
 - [ ] Add verified card effects one at a time with fixtures and provenance.
   Partial: the five conditional session paths above have source audit and
   targeted fixtures; full card coverage remains unimplemented.
+  Paperwork now has a conditional draw/discard frame with hidden commitments,
+  explicit schedules, partial quotas and a scarce-supply stop. Session schema 2
+  includes frame checkpoints and selected cards. See M1_PAPERWORK.md.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

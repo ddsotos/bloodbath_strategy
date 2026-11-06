@@ -1,4 +1,4 @@
-conditional-session-v1; not a complete official game or legal setup sampler
+conditional-session-v2; not a complete official game or legal setup sampler
 Publisher-authored English rulebook reproduction SHA256
 63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
 p2 Accident card image:-3 people;p6 loss Events affect each player.
@@ -20,3 +20,11 @@ Command replay stores full engine checkpoints,seed/config,hash and raw results.
 No shadow run,score rewards,AI strength or first-Work conclusions claimed.
 JSON export is audit data with private truth;not a policy observation.
 Hash includes base-rules and progression-population manifest dependencies.
+p6 Paperwork:draw1 Building then discard2;caller scope excludes HackerLair immunity.
+Convention:explicit draw schedule,both draws before private discard commitments,
+explicit discard schedule and caller selection order determine public discard top.
+If old deck+discard has<2 cards,blocked_shared_draw stops before ALL draws to
+avoid unverified timing involving newly discarded cards from the same Event.
+p8 discard min(2,current hand size);hand discard is not in-play Building LOST.
+Decision index once when draws complete;administrative schedules do not count.
+Replay/JSON schema2 records draw order,draw metadata,discard choices and order.

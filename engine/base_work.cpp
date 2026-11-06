@@ -54,6 +54,26 @@ State setup_fragment(std::array<std::vector<Card>, 2> hands, std::vector<Card> r
     validate_cards(state);
     return state;
 }
+BuildingDrawRecord draw_buildings(State& state, std::array<std::uint32_t, 2> counts,
+    std::array<Player, 2> schedule, std::uint64_t seed, EffectScope scope) {
+    (void)WorkBatch(state, seed, scope); // Reuse the certified context/card boundary.
+    if (!((schedule[0] == 0 && schedule[1] == 1) || (schedule[0] == 1 && schedule[1] == 0)))
+        throw std::invalid_argument("draw schedule must be a player permutation");
+    auto next = state;
+    BuildingDrawRecord record{counts, {}, schedule, seed, state.building_shuffle_index,
+                              state.building_shuffle_index};
+    const RandomStreams rng(seed);
+    for (const Player p : schedule)
+        for (std::uint32_t i = 0; i < counts[p]; ++i) {
+            const auto card = draw(next, rng);
+            if (!card) break;
+            next.colonies[p].hand.push_back(*card);
+            record.drawn[p].push_back(*card);
+        }
+    record.shuffles_after = next.building_shuffle_index;
+    state = std::move(next);
+    return record;
+}
 WorkBatch::WorkBatch(State state, std::uint64_t seed, EffectScope scope)
     : state_(std::move(state)), seed_(seed) {
     if (scope != EffectScope::caller_verified_unmodified)

@@ -58,3 +58,9 @@ results are supported only for these complete conditional paths. Unpayable
 Accident, equal terminal populations, missing effects and unknown Event order
 are not filled in. Terminal outcomes do not make the full scoring/end checklist
 verified; caller-supplied mappings and physical-edition reconciliation remain open.
+
+Paperwork's base draw-one/discard-two rule and feasible quota were reviewed on
+p6/p8 (M1_PAPERWORK_AUDIT.md). Its conditional frame is implemented with explicit
+ordering conventions and a stop for scarce shared supply. Hacker Lair immunity
+and other modifiers remain outside the no-Building scope; cross-player timing
+and discard-pile ordering are not claimed as newly verified official rules.

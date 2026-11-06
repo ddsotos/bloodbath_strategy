@@ -21,6 +21,10 @@ unresolved terminal interruption and unknown LOST effect guards.
 including Accident's printed three-person loss on p2 and Hunger's empty-tableau
 case on p6. See [M1_SESSION.md](M1_SESSION.md) for exact support and stops.
 
+[M1_PAPERWORK_AUDIT.md](M1_PAPERWORK_AUDIT.md) reviews Paperwork's draw/discard
+rule, immunity and feasible quotas, while separating explicit scheduling
+conventions from the printed rules. Implementation limits are in M1_PAPERWORK.md.
+
 ## Sources
 
 | ID | Source | Verification status | Limits |
