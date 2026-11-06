@@ -7,10 +7,11 @@
 
 namespace bloodbath::session {
 inline constexpr const char* manifest_hash = BLOODBATH_SESSION_HASH;
-enum class Effect { work, trouble, hunger, accident, instruction_manual, unsupported };
+enum class Effect { work, trouble, hunger, accident, instruction_manual, unsupported, paperwork };
 enum class Phase {
     ready, work_decision, blocked_unknown_card, blocked_event_queue,
-    blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal
+    blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal,
+    paperwork_draw_order, paperwork_discard, blocked_shared_draw
 };
 struct Config {
     std::uint64_t seed = 0;
@@ -33,6 +34,13 @@ struct TerminalEvidence {
     std::string cause;
     bool operator==(const TerminalEvidence&) const = default;
 };
+struct PaperworkRecord {
+    base_rules::BuildingDrawRecord draws;
+    std::array<std::vector<base_rules::Card>, 2> discarded;
+    std::array<Player, 2> discard_order{0, 1};
+    bool completed = false;
+    bool operator==(const PaperworkRecord&) const = default;
+};
 struct Snapshot {
     base_rules::State colonies;
     progression::Snapshot progress;
@@ -42,6 +50,8 @@ struct Snapshot {
     std::optional<OfficialOutcome> official;
     std::array<std::optional<DeathRecord>, 2> deaths;
     std::optional<TerminalEvidence> terminal_evidence;
+    std::optional<PaperworkRecord> paperwork;
+    std::array<std::optional<std::vector<base_rules::Card>>, 2> discard_commitments;
     bool operator==(const Snapshot&) const = default;
 };
 struct Observation {
@@ -49,6 +59,7 @@ struct Observation {
     progression::Observation progress;
     Phase phase;
     std::optional<OfficialOutcome> official;
+    std::size_t required_discards = 0;
     bool operator==(const Observation&) const = default;
 };
 class Session {
@@ -58,6 +69,9 @@ class Session {
     Phase advance();
     void commit(Player, base_rules::WorkAction);
     base_rules::WorkRecord resolve_work(std::array<Player, 2> explicit_schedule);
+    Phase prepare_paperwork(std::array<Player, 2> explicit_draw_schedule);
+    void commit_discards(Player, std::vector<base_rules::Card>);
+    PaperworkRecord resolve_paperwork(std::array<Player, 2> explicit_discard_schedule);
     Observation observe(Player) const;
     Snapshot snapshot() const { return state_; }
   private:
@@ -65,16 +79,17 @@ class Session {
     Config config_;
     Snapshot state_;
 };
-enum class CommandKind { advance, commit, resolve_work };
+enum class CommandKind { advance, commit, resolve_work, prepare_paperwork, commit_discards, resolve_paperwork };
 struct Command {
     CommandKind kind = CommandKind::advance;
     Player player = 0;
     base_rules::WorkAction action = base_rules::WorkAction::mine;
     std::array<Player, 2> schedule{0, 1};
+    std::vector<base_rules::Card> cards{};
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 1;
+    std::uint32_t schema = 2;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

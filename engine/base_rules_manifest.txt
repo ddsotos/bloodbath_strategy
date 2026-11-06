@@ -13,3 +13,5 @@ Explicit caller resolution permutation is logged; not official player priority.
 Shuffle: Fisher-Yates descending with event-splitmix64-v1 building stream;
 event=incremented building_shuffle_index,draw=current remaining size.
 No setup sampling or counterfactual coupling validity is claimed.
+draw-instruction-v1:caller counts and explicit schedule use the same draw/recycle
+primitive in a certified unmodified no-Building context;atomic state commit.

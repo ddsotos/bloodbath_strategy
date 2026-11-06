@@ -34,6 +34,24 @@ std::vector<session::Command> script() {
         {session::CommandKind::advance}, {session::CommandKind::advance},
         {session::CommandKind::advance}};
 }
+session::Input paperwork_fixture(std::uint64_t seed) {
+    auto input = fixture(seed);
+    input.progress.deck = {104, 106, 100};
+    input.config.effects[106] = session::Effect::paperwork;
+    input.config.ordered_events.clear();
+    return input;
+}
+std::vector<session::Command> paperwork_script() {
+    auto commands = script();
+    commands.resize(4); // Existing Work, then a Paperwork draw/discard frame.
+    commands.push_back({session::CommandKind::advance});
+    commands.push_back({session::CommandKind::prepare_paperwork, 0, rules::WorkAction::mine, {1, 0}});
+    commands.push_back({session::CommandKind::commit_discards, 0, rules::WorkAction::mine, {0, 1}, {0, 86}});
+    commands.push_back({session::CommandKind::commit_discards, 1, rules::WorkAction::mine, {0, 1}, {4, 87}});
+    commands.push_back({session::CommandKind::resolve_paperwork, 0, rules::WorkAction::mine, {1, 0}});
+    commands.push_back({session::CommandKind::advance});
+    return commands;
+}
 } // namespace
 int main(int argc, char** argv) {
     try {
@@ -42,17 +60,24 @@ int main(int argc, char** argv) {
             std::cout << session::serialize_record(session::record(fixture(42), script())) << '\n';
             return 0;
         }
-        if (argc != 2 || std::string(argv[1]) != "--benchmark")
-            throw std::invalid_argument("usage: session_demo [--benchmark]");
+        if (argc == 2 && std::string(argv[1]) == "--paperwork") {
+            std::cout << session::serialize_record(session::record(paperwork_fixture(42), paperwork_script())) << '\n';
+            return 0;
+        }
+        if (argc != 2 || (std::string(argv[1]) != "--benchmark" && std::string(argv[1]) != "--benchmark-paperwork"))
+            throw std::invalid_argument("usage: session_demo [--paperwork | --benchmark | --benchmark-paperwork]");
+        const bool with_paperwork = std::string(argv[1]) == "--benchmark-paperwork";
         constexpr std::uint64_t count = 1000;
         const auto start = std::chrono::steady_clock::now();
         std::uint64_t checksum = 0;
         for (std::uint64_t seed = 0; seed < count; ++seed) {
-            const auto replay = session::record(fixture(seed), script());
+            const auto replay = session::record(with_paperwork ? paperwork_fixture(seed) : fixture(seed),
+                                                with_paperwork ? paperwork_script() : script());
             checksum += session::verify(replay).progress.clock.absolute_event;
         }
         const auto seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
-        std::cout << "{\"fixture\":\"conditional-script-v1\",\"full_game\":false,\"traces\":"
+        std::cout << "{\"fixture\":\"" << (with_paperwork ? "conditional-paperwork-v1" : "conditional-script-v1")
+            << "\",\"full_game\":false,\"traces\":"
             << count << ",\"record_and_verify_seconds\":" << seconds << ",\"traces_per_second\":"
             << count / seconds << ",\"checksum\":" << checksum << "}\n";
     } catch (const std::exception& error) {

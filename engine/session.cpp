@@ -1,5 +1,6 @@
 #include "engine/session.hpp"
 
+#include <algorithm>
 #include <limits>
 #include <set>
 #include <stdexcept>
@@ -31,7 +32,8 @@ void validate(const Input& input) {
     for (const auto& [card, effect] : input.config.effects) {
         (void)card;
         if (effect != Effect::work && effect != Effect::trouble && effect != Effect::hunger &&
-            effect != Effect::accident && effect != Effect::instruction_manual && effect != Effect::unsupported)
+            effect != Effect::accident && effect != Effect::instruction_manual &&
+            effect != Effect::unsupported && effect != Effect::paperwork)
             throw std::invalid_argument("invalid effect tag");
     }
 }
@@ -44,6 +46,9 @@ void execute(Session& session, const Command& command) {
     case CommandKind::advance: (void)session.advance(); break;
     case CommandKind::commit: session.commit(command.player, command.action); break;
     case CommandKind::resolve_work: (void)session.resolve_work(command.schedule); break;
+    case CommandKind::prepare_paperwork: (void)session.prepare_paperwork(command.schedule); break;
+    case CommandKind::commit_discards: session.commit_discards(command.player, command.cards); break;
+    case CommandKind::resolve_paperwork: (void)session.resolve_paperwork(command.schedule); break;
     default: throw std::invalid_argument("invalid replay command");
     }
 }
@@ -118,6 +123,10 @@ Phase Session::advance() {
         terminal(next, reveal->clock, "Instruction Manual");
         deck.finish_active();
         break;
+    case Effect::paperwork:
+        next.paperwork.reset();
+        next.phase = Phase::paperwork_draw_order;
+        break;
     case Effect::unsupported:
         next.phase = Phase::blocked_unknown_card;
         break;
@@ -158,11 +167,73 @@ Observation Session::observe(Player p) const {
     base_rules::Observation colony{p,
         {state_.colonies.colonies[0].resources, state_.colonies.colonies[1].resources},
         state_.colonies.colonies[p].hand, top};
-    return {colony, progression::Deck(state_.progress, config_.seed).observe(), state_.phase, state_.official};
+    const auto required = state_.phase == Phase::paperwork_discard ?
+        std::min(std::size_t{2}, state_.colonies.colonies[p].hand.size()) : 0;
+    return {colony, progression::Deck(state_.progress, config_.seed).observe(),
+            state_.phase, state_.official, required};
+}
+Phase Session::prepare_paperwork(std::array<Player, 2> schedule) {
+    if (state_.phase != Phase::paperwork_draw_order)
+        throw std::invalid_argument("not awaiting Paperwork draw schedule");
+    if (!((schedule[0] == 0 && schedule[1] == 1) || (schedule[0] == 1 && schedule[1] == 0)))
+        throw std::invalid_argument("draw schedule must be a player permutation");
+    auto next = state_;
+    if (next.colonies.building_deck.size() + next.colonies.building_discard.size() < 2) {
+        // Do not choose whether current-event discards can supply another player's draw.
+        next.phase = Phase::blocked_shared_draw;
+    } else {
+        const auto draws = base_rules::draw_buildings(next.colonies, {1, 1}, schedule,
+                                                      config_.seed, config_.scope);
+        next.paperwork = PaperworkRecord{draws, {}, {0, 1}, false};
+        progression::Deck deck(next.progress, config_.seed);
+        deck.record_decision(); // One simultaneous discard decision, not schedule selection.
+        next.progress = deck.snapshot();
+        next.phase = Phase::paperwork_discard;
+    }
+    state_ = std::move(next);
+    return state_.phase;
+}
+void Session::commit_discards(Player p, std::vector<base_rules::Card> cards) {
+    if (p > 1 || state_.phase != Phase::paperwork_discard || state_.discard_commitments[p])
+        throw std::invalid_argument("not an open Paperwork discard commitment");
+    const auto& hand = state_.colonies.colonies[p].hand;
+    if (cards.size() != std::min(std::size_t{2}, hand.size()))
+        throw std::invalid_argument("Paperwork must discard as many as possible up to two");
+    std::set<base_rules::Card> selected;
+    for (const auto card : cards)
+        if (!selected.insert(card).second || std::find(hand.begin(), hand.end(), card) == hand.end())
+            throw std::invalid_argument("discard must select distinct owned hand cards");
+    state_.discard_commitments[p] = std::move(cards);
+}
+PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
+    if (state_.phase != Phase::paperwork_discard ||
+        !state_.discard_commitments[0] || !state_.discard_commitments[1])
+        throw std::invalid_argument("Paperwork requires both discard commitments");
+    if (!((schedule[0] == 0 && schedule[1] == 1) || (schedule[0] == 1 && schedule[1] == 0)))
+        throw std::invalid_argument("discard schedule must be a player permutation");
+    auto next = state_;
+    auto record = *next.paperwork;
+    record.discard_order = schedule;
+    for (const Player p : schedule)
+        for (const auto card : *next.discard_commitments[p]) {
+            auto& hand = next.colonies.colonies[p].hand;
+            hand.erase(std::find(hand.begin(), hand.end(), card));
+            next.colonies.building_discard.push_back(card);
+            record.discarded[p].push_back(card);
+        }
+    record.completed = true;
+    progression::Deck deck(next.progress, config_.seed);
+    deck.finish_active();
+    next.progress = deck.snapshot();
+    next.paperwork = record;
+    next.discard_commitments = {};
+    next.phase = Phase::ready;
+    state_ = std::move(next);
+    return record;
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{1, manifest_hash, std::move(input), commands, {}};
+    Replay replay{2, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -170,7 +241,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 1 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 2 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

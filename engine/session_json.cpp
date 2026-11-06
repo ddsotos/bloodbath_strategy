@@ -47,6 +47,19 @@ void outcome(std::ostream& out, const std::optional<OfficialOutcome>& value) {
         << "],\"winner\":" << static_cast<unsigned>(value->winner)
         << ",\"cause\":\"" << value->cause << "\"}";
 }
+void paperwork(std::ostream& out, const std::optional<PaperworkRecord>& value) {
+    if (!value) { out << "null"; return; }
+    const auto& draws = value->draws;
+    out << "{\"requested\":[" << draws.requested[0] << ',' << draws.requested[1]
+        << "],\"drawn\":["; cards(out, draws.drawn[0]); out << ','; cards(out, draws.drawn[1]);
+    out << "],\"draw_order\":[" << static_cast<unsigned>(draws.resolution_order[0]) << ','
+        << static_cast<unsigned>(draws.resolution_order[1]) << "],\"seed\":" << draws.seed
+        << ",\"shuffles_before\":" << draws.shuffles_before << ",\"shuffles_after\":" << draws.shuffles_after
+        << ",\"discarded\":["; cards(out, value->discarded[0]); out << ','; cards(out, value->discarded[1]);
+    out << "],\"discard_order\":[" << static_cast<unsigned>(value->discard_order[0]) << ','
+        << static_cast<unsigned>(value->discard_order[1]) << "],\"completed\":"
+        << (value->completed ? "true" : "false") << '}';
+}
 void snapshot(std::ostream& out, const Snapshot& value) {
     out << "{\"colonies\":"; colonies(out, value.colonies);
     out << ",\"progress\":"; progress(out, value.progress);
@@ -74,6 +87,12 @@ void snapshot(std::ostream& out, const Snapshot& value) {
         clock(out, death.clock);
         out << ",\"cause\":\"" << death.cause << "\",\"deficit\":" << death.deficit << '}';
     }
+    out << "],\"paperwork\":"; paperwork(out, value.paperwork);
+    out << ",\"discard_commitments\":[";
+    for (Player p = 0; p < 2; ++p) {
+        if (p) out << ',';
+        if (value.discard_commitments[p]) cards(out, *value.discard_commitments[p]); else out << "null";
+    }
     out << "]}";
 }
 } // namespace
@@ -82,8 +101,8 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":1,\"scope\":\"conditional-no-buildings-no-modifiers\","
-           "\"full_game\":false,\"policy_version\":\"caller-commands-v1\","
+    out << "{\"schema_version\":2,\"scope\":\"conditional-no-buildings-no-modifiers\","
+           "\"full_game\":false,\"policy_version\":\"caller-commands-v2\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""
@@ -107,7 +126,8 @@ std::string serialize_record(const Replay& replay) {
         out << "{\"kind\":" << static_cast<unsigned>(command.kind) << ",\"player\":"
             << static_cast<unsigned>(command.player) << ",\"action\":" << static_cast<unsigned>(command.action)
             << ",\"schedule\":[" << static_cast<unsigned>(command.schedule[0]) << ','
-            << static_cast<unsigned>(command.schedule[1]) << "]}";
+            << static_cast<unsigned>(command.schedule[1]) << "],\"cards\":";
+        cards(out, command.cards); out << '}';
     }
     out << "],\"checkpoints\":[";
     first = true;

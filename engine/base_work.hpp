@@ -50,6 +50,18 @@ struct WorkRecord {
     std::string subset_hash = BLOODBATH_BASE_RULES_HASH;
     bool operator==(const WorkRecord&) const = default;
 };
+struct BuildingDrawRecord {
+    std::array<std::uint32_t, 2> requested;
+    std::array<std::vector<Card>, 2> drawn;
+    std::array<Player, 2> resolution_order;
+    std::uint64_t seed;
+    std::uint64_t shuffles_before;
+    std::uint64_t shuffles_after;
+    bool operator==(const BuildingDrawRecord&) const = default;
+};
+// Raw conditional draw instruction, not a Work action. Caller owns effect semantics.
+BuildingDrawRecord draw_buildings(State&, std::array<std::uint32_t, 2> counts,
+    std::array<Player, 2> explicit_schedule, std::uint64_t seed, EffectScope);
 class WorkBatch {
   public:
     WorkBatch(State state, std::uint64_t seed, EffectScope scope);
