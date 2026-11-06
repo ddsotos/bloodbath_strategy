@@ -70,3 +70,9 @@ M1_ROBOT_AUDIT.md. The supplied Robot order is not a full setup distribution.
 Exact-zero/unpayable Robot interruption blocks before effects; unknown Robots
 and source exhaustion also remain explicit boundaries. Full catalogs and
 terminal semantics are not made verified by these nonterminal handlers.
+
+Kale Farm cost/population/PLAY/Farm and basic box allocation were reviewed on
+p4/p5; see M1_TABLEAU_AUDIT.md. The opt-in subset supports BUILD/RESTOCK and
+total-population scoring but does not establish physical copy counts or a
+complete catalog. Population-changing Events/Robots stop with Buildings in play;
+their adapters and general ordering/LOST semantics remain unimplemented.

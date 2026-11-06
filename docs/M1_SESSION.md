@@ -27,6 +27,11 @@ type. The API cannot automatically certify this flag: a future full engine must
 establish it from verified effects. The real initial game includes Twists;
 this conditional input is not a replacement setup.
 
+A reviewed Kale-Farm-only opt-in permits adopted Buildings and effects;
+see M1_TABLEAU.md. The default bare scope stays restricted. The scope flag
+certifies absence of effects outside enabled reviewed rules. Unsupported
+Building-dependent Event paths block before mutation.
+
 A session starts a new local trace at a resolved boundary, with zero Progress
 clock/counters. It rejects active-card or nonzero-clock inputs, rather than
 inventing prior first-death history. It does not restore arbitrary midgame state;
@@ -105,6 +110,9 @@ Paperwork extends Session Replay/JSON to schema 2 and appends discard/frame
 data; schema 1 session records reject. M0 formats remain unchanged.
 The Robot extension advances the current Session schema to 3, adding the
 private supplied Robot source and consumed index, and rejects older schemas.
+The current reviewed Tableau extension uses schema 4: opt-in definitions,
+boxes, rich Work choices and effect records. Older session schemas reject;
+M0 formats remain unchanged.
 
 ## Run and validate
 

@@ -12,8 +12,13 @@ bool robot_effect(Effect effect) {
     return effect == Effect::robot_butler || effect == Effect::robot_waiter || effect == Effect::mining_robot;
 }
 void validate(const Input& input) {
-    // Reuse the subset's living/no-buildings/unique-90-card boundary.
-    (void)base_rules::WorkBatch(input.colonies, input.config.seed, input.config.scope);
+    // Bare context stays strict; only explicit reviewed Tableau rules allow Buildings.
+    if (input.config.tableau_enabled)
+        tableau::validate(input.colonies, input.config.building_catalog, input.config.scope);
+    else {
+        if (!input.config.building_catalog.empty()) throw std::invalid_argument("Building catalog needs explicit opt-in");
+        (void)base_rules::WorkBatch(input.colonies, input.config.seed, input.config.scope);
+    }
     const auto& progress = input.progress;
     (void)progression::Deck(progress, input.config.seed);
     if (progress.active) throw std::invalid_argument("session input must be at a resolved card boundary");
@@ -21,7 +26,8 @@ void validate(const Input& input) {
         progress.clock.decision || progress.shuffle_index || progress.addition_index)
         throw std::invalid_argument("session starts a new local trace, not an unverified midgame restore");
     for (const auto& colony : input.colonies.colonies)
-        if (colony.resources.people > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
+        if (tableau::total_people(colony, input.config.building_catalog) >
+            static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
             throw std::overflow_error("population exceeds official score type");
     std::set<progression::Card> used(progress.deck.begin(), progress.deck.end());
     used.insert(progress.discard.begin(), progress.discard.end());
@@ -60,6 +66,16 @@ void execute(Session& session, const Command& command) {
     case CommandKind::prepare_paperwork: (void)session.prepare_paperwork(command.schedule); break;
     case CommandKind::commit_discards: session.commit_discards(command.player, command.cards); break;
     case CommandKind::resolve_paperwork: (void)session.resolve_paperwork(command.schedule); break;
+    case CommandKind::commit_choice: {
+        tableau::Choice choice{command.action};
+        if (command.action == base_rules::WorkAction::build) {
+            if (command.cards.size() != 1) throw std::invalid_argument("BUILD command needs one card");
+            choice.build = command.cards[0];
+        } else if (command.action == base_rules::WorkAction::restock) choice.box_targets = command.cards;
+        else if (!command.cards.empty()) throw std::invalid_argument("unexpected Work command cards");
+        session.commit_choice(command.player, choice);
+        break;
+    }
     default: throw std::invalid_argument("invalid replay command");
     }
 }
@@ -70,8 +86,8 @@ Session::Session(Input input) : config_(input.config) {
     state_.progress = std::move(input.progress);
 }
 void Session::terminal(Snapshot& next, const EventClock& clock, const std::string& cause) {
-    const Scores scores{static_cast<std::int64_t>(next.colonies.colonies[0].resources.people),
-                        static_cast<std::int64_t>(next.colonies.colonies[1].resources.people)};
+    const Scores scores{static_cast<std::int64_t>(tableau::total_people(next.colonies.colonies[0], config_.building_catalog)),
+                        static_cast<std::int64_t>(tableau::total_people(next.colonies.colonies[1], config_.building_catalog))};
     next.terminal_evidence = TerminalEvidence{clock, scores, cause};
     if (scores[0] == scores[1]) {
         next.phase = Phase::unresolved_tie;
@@ -91,7 +107,16 @@ Phase Session::advance() {
         state_ = std::move(next);
         return state_.phase;
     }
-    switch (effect_of(config_, reveal->card)) {
+    const auto revealed_effect = effect_of(config_, reveal->card);
+    const bool has_buildings = !next.colonies.colonies[0].buildings.empty() || !next.colonies.colonies[1].buildings.empty();
+    if (has_buildings && (revealed_effect == Effect::hunger || revealed_effect == Effect::accident ||
+                          robot_effect(revealed_effect))) {
+        next.phase = Phase::blocked_tableau_effect;
+        next.progress = deck.snapshot();
+        state_ = std::move(next);
+        return state_.phase;
+    }
+    switch (revealed_effect) {
     case Effect::work:
         deck.record_decision(); // One simultaneous Work decision point, not two reveals.
         next.phase = Phase::work_decision;
@@ -189,19 +214,49 @@ void Session::commit(Player player, base_rules::WorkAction action) {
         action != base_rules::WorkAction::research)
         throw std::invalid_argument("unsupported Work action");
     state_.commitments[player] = action;
+    state_.work_choices[player] = tableau::Choice{action};
+}
+void Session::commit_choice(Player player, const tableau::Choice& choice) {
+    if (!config_.tableau_enabled || player > 1 || state_.phase != Phase::work_decision || state_.commitments[player])
+        throw std::invalid_argument("not an open reviewed-tableau commitment");
+    tableau::validate_choice(state_.colonies, config_.building_catalog, player, choice);
+    auto next = state_;
+    next.commitments[player] = choice.action;
+    next.work_choices[player] = choice;
+    state_ = std::move(next);
+}
+std::vector<tableau::Choice> Session::work_options(Player player) const {
+    if (player > 1) throw std::invalid_argument("invalid player");
+    if (state_.phase != Phase::work_decision || state_.commitments[player]) return {};
+    if (config_.tableau_enabled) return tableau::options(state_.colonies, config_.building_catalog, player);
+    return {{base_rules::WorkAction::mine}, {base_rules::WorkAction::farm}, {base_rules::WorkAction::research}};
 }
 base_rules::WorkRecord Session::resolve_work(std::array<Player, 2> schedule) {
     if (state_.phase != Phase::work_decision || !state_.commitments[0] || !state_.commitments[1])
         throw std::invalid_argument("Work requires both commitments");
     auto next = state_;
-    base_rules::WorkBatch batch(next.colonies, config_.seed, config_.scope);
-    for (Player p = 0; p < 2; ++p) batch.commit(p, *next.commitments[p]);
-    auto result = batch.resolve(schedule);
+    base_rules::WorkRecord result{};
+    if (config_.tableau_enabled) {
+        const std::array<tableau::Choice, 2> choices{*next.work_choices[0], *next.work_choices[1]};
+        auto record = tableau::resolve(next.colonies, config_.building_catalog, choices, schedule,
+                                       config_.seed, config_.scope);
+        for (const auto& colony : next.colonies.colonies)
+            if (tableau::total_people(colony, config_.building_catalog) >
+                static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
+                throw std::overflow_error("Building population exceeds official score range");
+        result = record.base;
+        next.tableau_work = std::move(record);
+    } else {
+        base_rules::WorkBatch batch(next.colonies, config_.seed, config_.scope);
+        for (Player p = 0; p < 2; ++p) batch.commit(p, *next.commitments[p]);
+        result = batch.resolve(schedule);
+        next.colonies = batch.snapshot();
+    }
     progression::Deck deck(next.progress, config_.seed);
     deck.finish_active();
-    next.colonies = batch.snapshot();
     next.progress = deck.snapshot();
     next.commitments = {};
+    next.work_choices = {};
     next.phase = Phase::ready;
     state_ = std::move(next);
     return result;
@@ -214,10 +269,12 @@ Observation Session::observe(Player p) const {
     base_rules::Observation colony{p,
         {state_.colonies.colonies[0].resources, state_.colonies.colonies[1].resources},
         state_.colonies.colonies[p].hand, top};
+    colony.public_buildings = {state_.colonies.colonies[0].buildings, state_.colonies.colonies[1].buildings};
+    colony.public_boxes = {state_.colonies.colonies[0].boxes, state_.colonies.colonies[1].boxes};
     const auto required = state_.phase == Phase::paperwork_discard ?
         std::min(std::size_t{2}, state_.colonies.colonies[p].hand.size()) : 0;
     return {colony, progression::Deck(state_.progress, config_.seed).observe(),
-            state_.phase, state_.official, required};
+            state_.phase, state_.official, required, work_options(p)};
 }
 Phase Session::prepare_paperwork(std::array<Player, 2> schedule) {
     if (state_.phase != Phase::paperwork_draw_order)
@@ -229,8 +286,12 @@ Phase Session::prepare_paperwork(std::array<Player, 2> schedule) {
         // Do not choose whether current-event discards can supply another player's draw.
         next.phase = Phase::blocked_shared_draw;
     } else {
-        const auto draws = base_rules::draw_buildings(next.colonies, {1, 1}, schedule,
-                                                      config_.seed, config_.scope);
+        base_rules::BuildingDrawRecord draws{};
+        if (config_.tableau_enabled) {
+            tableau::validate(next.colonies, config_.building_catalog, config_.scope);
+            draws = base_rules::draw_buildings(next.colonies, {1, 1}, schedule, config_.seed,
+                                              base_rules::DrawScope::caller_verified_unmodified_draw);
+        } else draws = base_rules::draw_buildings(next.colonies, {1, 1}, schedule, config_.seed, config_.scope);
         next.paperwork = PaperworkRecord{draws, {}, {0, 1}, false};
         progression::Deck deck(next.progress, config_.seed);
         deck.record_decision(); // One simultaneous discard decision, not schedule selection.
@@ -280,7 +341,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{3, manifest_hash, std::move(input), commands, {}};
+    Replay replay{4, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -288,7 +349,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 3 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 4 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

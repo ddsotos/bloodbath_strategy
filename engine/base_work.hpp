@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core.hpp"
+#include <map>
 
 namespace bloodbath::base_rules {
 // Physical-card IDs are caller data, not an implemented official card catalog.
@@ -16,6 +17,7 @@ struct Colony {
     Resources resources = starting_resources();
     std::vector<Card> hand;
     std::vector<Card> buildings;
+    std::map<Card, std::uint64_t> boxes{};
     bool operator==(const Colony&) const = default;
 };
 struct State {
@@ -38,6 +40,8 @@ struct Observation {
     std::optional<Card> top_building_discard;
     // These are supported subset operations, NOT a full legal-action list.
     std::array<WorkAction, 3> supported_actions{WorkAction::mine, WorkAction::farm, WorkAction::research};
+    std::array<std::vector<Card>, 2> public_buildings{};
+    std::array<std::map<Card, std::uint64_t>, 2> public_boxes{};
     bool operator==(const Observation&) const = default;
 };
 struct WorkRecord {
@@ -62,6 +66,11 @@ struct BuildingDrawRecord {
 // Raw conditional draw instruction, not a Work action. Caller owns effect semantics.
 BuildingDrawRecord draw_buildings(State&, std::array<std::uint32_t, 2> counts,
     std::array<Player, 2> explicit_schedule, std::uint64_t seed, EffectScope);
+enum class DrawScope { unverified, caller_verified_unmodified_draw };
+// Caller certifies living total population and absent draw modifiers. This raw
+// overload has no Building metadata; reviewed effect resolvers must validate it.
+BuildingDrawRecord draw_buildings(State&, std::array<std::uint32_t, 2> counts,
+    std::array<Player, 2> explicit_schedule, std::uint64_t seed, DrawScope);
 class WorkBatch {
   public:
     WorkBatch(State state, std::uint64_t seed, EffectScope scope);

@@ -3,6 +3,7 @@
 #include "engine/base_work.hpp"
 #include "engine/population.hpp"
 #include "engine/progression.hpp"
+#include "engine/tableau.hpp"
 #include <map>
 
 namespace bloodbath::session {
@@ -13,7 +14,7 @@ enum class Phase {
     ready, work_decision, blocked_unknown_card, blocked_event_queue,
     blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal,
     paperwork_draw_order, paperwork_discard, blocked_shared_draw,
-    blocked_robot_deck, blocked_robot_loss
+    blocked_robot_deck, blocked_robot_loss, blocked_tableau_effect
 };
 struct Config {
     std::uint64_t seed = 0;
@@ -22,8 +23,10 @@ struct Config {
     std::vector<progression::Card> ordered_events;
     // Supplied already-shuffled Robot deck in top-first order. Private engine truth.
     std::vector<progression::Card> ordered_robots;
-    // Certifies absence of ALL relevant modifiers (including Event/terminal effects).
+    // Certifies absence of effects outside any explicitly enabled reviewed rules.
     base_rules::EffectScope scope = base_rules::EffectScope::unverified;
+    bool tableau_enabled = false;
+    tableau::Catalog building_catalog;
     bool operator==(const Config&) const = default;
 };
 struct Input {
@@ -57,6 +60,8 @@ struct Snapshot {
     std::optional<TerminalEvidence> terminal_evidence;
     std::optional<PaperworkRecord> paperwork;
     std::array<std::optional<std::vector<base_rules::Card>>, 2> discard_commitments;
+    std::array<std::optional<tableau::Choice>, 2> work_choices;
+    std::optional<tableau::WorkRecord> tableau_work;
     bool operator==(const Snapshot&) const = default;
 };
 struct Observation {
@@ -65,6 +70,7 @@ struct Observation {
     Phase phase;
     std::optional<OfficialOutcome> official;
     std::size_t required_discards = 0;
+    std::vector<tableau::Choice> work_options{};
     bool operator==(const Observation&) const = default;
 };
 class Session {
@@ -73,6 +79,8 @@ class Session {
     // Advances at most one Progress card. Waiting/blocked/terminal phases cannot be skipped.
     Phase advance();
     void commit(Player, base_rules::WorkAction);
+    void commit_choice(Player, const tableau::Choice&);
+    std::vector<tableau::Choice> work_options(Player) const;
     base_rules::WorkRecord resolve_work(std::array<Player, 2> explicit_schedule);
     Phase prepare_paperwork(std::array<Player, 2> explicit_draw_schedule);
     void commit_discards(Player, std::vector<base_rules::Card>);
@@ -84,7 +92,8 @@ class Session {
     Config config_;
     Snapshot state_;
 };
-enum class CommandKind { advance, commit, resolve_work, prepare_paperwork, commit_discards, resolve_paperwork };
+enum class CommandKind { advance, commit, resolve_work, prepare_paperwork, commit_discards,
+                         resolve_paperwork, commit_choice };
 struct Command {
     CommandKind kind = CommandKind::advance;
     Player player = 0;
@@ -94,7 +103,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 3;
+    std::uint32_t schema = 4;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

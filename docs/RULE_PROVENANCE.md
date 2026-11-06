@@ -30,6 +30,10 @@ Robot effects against the same pinned reproduction. No complete Robot catalog
 or physical-edition reconciliation is established; M1_GLITCH_ROBOTS.md records
 the safe conditional paths and explicit terminal/tail guards.
 
+[M1_TABLEAU_AUDIT.md](M1_TABLEAU_AUDIT.md) reviews Kale Farm's illustrated
+definition and Build/Restock semantics. M1_TABLEAU.md records opt-in scope,
+physical-ID/copy-count limits and affected Event guards.
+
 ## Sources
 
 | ID | Source | Verification status | Limits |

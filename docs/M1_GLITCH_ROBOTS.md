@@ -61,6 +61,8 @@ New effect tags: Glitch=7, Robot Butler=8, Robot Waiter=9, Mining Robot=10.
 New phases: blocked_robot_deck=11, blocked_robot_loss=12. No new command is
 required. Blocked states are not completed comparable rollouts; absent death
 or outcome does not establish survival or an official draw.
+The later Tableau extension advances current Session schema to 4, leaving
+these Robot IDs unchanged and blocking Robot paths with any Buildings in play.
 
 ## Run and validation
 
