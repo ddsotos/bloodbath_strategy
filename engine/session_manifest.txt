@@ -1,0 +1,22 @@
+conditional-session-v1; not a complete official game or legal setup sampler
+Publisher-authored English rulebook reproduction SHA256
+63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
+p2 Accident card image:-3 people;p6 loss Events affect each player.
+p4 Work:base Mine/Farm/Research, both commitments locked before resolution.
+p6 Trouble:next Event added once table,next reveal;Event order caller reviewed.
+p6 Hunger:no buildings => no food loss and+2people even if no food needed.
+p6,p7 InstructionManual:greatest surviving population wins;ties unverified.
+Requires living inputs,no buildings,caller verifies ALL relevant modifiers absent.
+Caller supplies physical Progress mapping,deck,Event queue;no invented catalog.
+Known Work/Trouble tags cannot be supplied as queued Events.
+Blocked unknown cards,missing Event,unpayable Accident remain active;no skip.
+Plain Accident with both>=3 applies both complete losses;on any exact zero freeze
+conditional official outcome with both resulting scores;equal scores stop
+unresolved_tie with terminal evidence and deaths but no fabricated draw.
+Any population<3 stops before ALL Accident population mutation/no death record.
+Work decision index increments once per simultaneous decision point on entry.
+Session starts new local zero-clock trace;no arbitrary midgame first-death restore.
+Command replay stores full engine checkpoints,seed/config,hash and raw results.
+No shadow run,score rewards,AI strength or first-Work conclusions claimed.
+JSON export is audit data with private truth;not a policy observation.
+Hash includes base-rules and progression-population manifest dependencies.

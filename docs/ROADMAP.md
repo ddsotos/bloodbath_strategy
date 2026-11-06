@@ -21,7 +21,13 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   and conditional forced population loss with explicit Building choices and
   failure diagnostics. Unknown LOST and terminal interruption remain blocked.
   See M1_PROGRESSION_POPULATION.md; whole-game transitions are still incomplete.
+  Connected conditional slice: Session dispatches reviewed Work/Trouble/Hunger/
+  Accident/Instruction Manual paths, first exact-zero death and unique terminal
+  result, with explicit stops and command replay. No full setup/catalog or
+  production shadow continuation. See M1_SESSION.md.
 - [ ] Add verified card effects one at a time with fixtures and provenance.
+  Partial: the five conditional session paths above have source audit and
+  targeted fixtures; full card coverage remains unimplemented.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

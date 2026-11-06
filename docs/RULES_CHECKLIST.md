@@ -51,3 +51,10 @@ are now implemented as separate primitives; see M1_PROGRESSION_POPULATION.md.
 They do not verify the Progress catalog, actual cycle horizon or official end
 interruption ordering. Insufficient total with Buildings still present is an
 explicit unresolved boundary; ties and final scores remain unimplemented.
+
+M1_SESSION.md adds the connected no-Building/no-modifier subset: Work, Trouble,
+Hunger, Accident (-3 reviewed on p2) and Instruction Manual. Unique terminal
+results are supported only for these complete conditional paths. Unpayable
+Accident, equal terminal populations, missing effects and unknown Event order
+are not filled in. Terminal outcomes do not make the full scoring/end checklist
+verified; caller-supplied mappings and physical-edition reconciliation remain open.
