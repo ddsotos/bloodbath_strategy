@@ -66,7 +66,7 @@ state atomically. It is not a new Work action or an automatic effect resolver.
 
 ## Replay and JSON schema 2
 
-Session Replay/JSON now use schema **2**. Schema 1 session records reject instead
+Paperwork introduced Session Replay/JSON schema **2**. Schema 1 session records reject instead
 of being silently interpreted with new choice/frame fields; M0 toy replay/JSON
 formats are unchanged. Manifest/dependency hashes also change. Effects retain
 their previous numeric IDs and append Paperwork=6. Phases append:
@@ -80,6 +80,8 @@ persists after completion until the next Paperwork frame. JSON export verifies
 all checkpoints first and explicitly retains `full_game=false`. It is private
 engine/audit data, not an observation or a complete game sample. No JSON importer
 or generic checkpoint restoration is introduced.
+The subsequent Robot extension advances the current Session schema to 3;
+see M1_GLITCH_ROBOTS.md. The Paperwork fields and commands retain their IDs.
 
 ## Run and validation
 

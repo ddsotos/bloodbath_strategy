@@ -23,7 +23,9 @@ explicitly. This remains a partial ruleset with synthetic scenario inputs.
 
 [Paperwork](docs/M1_PAPERWORK.md) now adds private draw/discard frames;
 `session_demo --paperwork` exports the new scenario. Shared-supply ambiguity
-stops explicitly, and Session Replay/JSON use schema 2.
+stops explicitly. The [Glitch/Robot extension](docs/M1_GLITCH_ROBOTS.md) adds a
+private supplied Robot source and three nonterminal Robot handlers. Run
+`session_demo --robots`; current Session Replay/JSON use schema 3.
 
 ## Build and verify
 

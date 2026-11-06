@@ -44,10 +44,12 @@ are relative to this trace, not a reconstructed earlier game.
 | Instruction Manual | p6,p7 | Stop and award the conditional official result to a unique greatest population; leave ties unresolved. |
 | Paperwork | p6,p8 | Conditional draw-one/discard-two frame; see M1_PAPERWORK.md for schedules, privacy and scarce-supply stop. |
 
-BUILD, RESTOCK, Glitch, Robot/Twist/Development/Perk effects and all
+BUILD, RESTOCK, remaining Robot/Twist/Development/Perk effects and all
 Building triggers remain unsupported. Unknown effects retain the active card;
 they are never discarded as no-ops. The session does not implement a rescue or
 fallback action to pass an unresolved boundary.
+Glitch and three safe nonterminal Robot paths are added in M1_GLITCH_ROBOTS.md;
+their source order and terminal-tail guard remain explicit.
 
 `advance` processes at most one Progress reveal. During Work it returns the same
 decision boundary without revealing another card. One simultaneous Work point
@@ -101,6 +103,8 @@ The existing M0 JSON/text formats are unchanged. No C++ JSON importer or
 versioned persistent-checkpoint restoration is implemented in this slice.
 Paperwork extends Session Replay/JSON to schema 2 and appends discard/frame
 data; schema 1 session records reject. M0 formats remain unchanged.
+The Robot extension advances the current Session schema to 3, adding the
+private supplied Robot source and consumed index, and rejects older schemas.
 
 ## Run and validate
 

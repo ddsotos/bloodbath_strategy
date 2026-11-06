@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 record = json.loads(subprocess.check_output([sys.argv[1]], text=True))
-assert record["schema_version"] == 2
+assert record["schema_version"] == 3
 assert record["full_game"] is False
 assert record["scope"] == "conditional-no-buildings-no-modifiers"
 for name in ("session_hash", "base_rules_hash", "progression_population_hash"):
@@ -39,8 +39,33 @@ assert final["colonies"]["players"][1]["food"] == 8
 assert final["paperwork"] is None
 assert final["discard_commitments"] == [None, None]
 
+robots = json.loads(subprocess.check_output([sys.argv[1], "--robots"], text=True))
+assert robots["schema_version"] == 3 and robots["full_game"] is False
+assert len(robots["commands"]) == len(robots["checkpoints"]) == 7
+assert robots["initial"]["config"]["ordered_robots"] == [108]
+for point in robots["checkpoints"]:
+    colony = point["colonies"]
+    ids = colony["building_deck"] + colony["building_discard"]
+    for player in colony["players"]:
+        ids += player["hand"] + player["buildings"]
+    assert sorted(ids) == list(range(90))
+    progress = point["progress"]
+    ids = progress["deck"] + progress["discard"]
+    if progress["active"] is not None:
+        ids += [progress["active"]]
+    ids += robots["initial"]["config"]["ordered_robots"][point["next_robot"]:]
+    assert sorted(ids) == [100, 104, 107, 108]
+glitch = robots["checkpoints"][4]
+assert glitch["next_robot"] == 1 and glitch["progress"]["deck"][-1] == 108
+assert [p["people"] for p in glitch["colonies"]["players"]] == [30, 29]
+assert robots["final"]["next_robot"] == 1
+assert robots["final"]["conditional_official_outcome"]["scores"] == [26, 25]
+assert [p["food"] for p in robots["final"]["colonies"]["players"]] == [2, 6]
+assert robots["final"]["progress"]["clock"] == {"absolute_event": 4, "cycle": 0, "position": 4, "decision": 1}
+assert robots["final"]["first_deaths"] == [None, None]
+
 paperwork = json.loads(subprocess.check_output([sys.argv[1], "--paperwork"], text=True))
-assert paperwork["schema_version"] == 2 and paperwork["full_game"] is False
+assert paperwork["schema_version"] == 3 and paperwork["full_game"] is False
 assert len(paperwork["commands"]) == len(paperwork["checkpoints"]) == 10
 for point in paperwork["checkpoints"]:
     colony = point["colonies"]

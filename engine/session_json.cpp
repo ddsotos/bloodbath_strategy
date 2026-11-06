@@ -64,7 +64,8 @@ void snapshot(std::ostream& out, const Snapshot& value) {
     out << "{\"colonies\":"; colonies(out, value.colonies);
     out << ",\"progress\":"; progress(out, value.progress);
     out << ",\"phase\":" << static_cast<unsigned>(value.phase)
-        << ",\"next_event\":" << value.next_event << ",\"commitments\":[";
+        << ",\"next_event\":" << value.next_event << ",\"next_robot\":" << value.next_robot
+        << ",\"commitments\":[";
     for (Player p = 0; p < 2; ++p) {
         if (p) out << ',';
         if (value.commitments[p]) out << static_cast<unsigned>(*value.commitments[p]); else out << "null";
@@ -101,8 +102,8 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":2,\"scope\":\"conditional-no-buildings-no-modifiers\","
-           "\"full_game\":false,\"policy_version\":\"caller-commands-v2\","
+    out << "{\"schema_version\":3,\"scope\":\"conditional-no-buildings-no-modifiers\","
+           "\"full_game\":false,\"policy_version\":\"caller-commands-v3\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""
@@ -111,6 +112,7 @@ std::string serialize_record(const Replay& replay) {
     out << ",\"progress\":"; progress(out, replay.initial.progress);
     out << ",\"config\":{\"seed\":" << config.seed << ",\"scope\":" << static_cast<unsigned>(config.scope)
         << ",\"ordered_events\":"; cards(out, config.ordered_events);
+    out << ",\"ordered_robots\":"; cards(out, config.ordered_robots);
     out << ",\"effects\":[";
     bool first = true;
     for (const auto& [id, effect] : config.effects) {

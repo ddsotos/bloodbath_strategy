@@ -64,3 +64,9 @@ p6/p8 (M1_PAPERWORK_AUDIT.md). Its conditional frame is implemented with explici
 ordering conventions and a stop for scarce shared supply. Hacker Lair immunity
 and other modifiers remain outside the no-Building scope; cross-player timing
 and discard-pile ordering are not claimed as newly verified official rules.
+
+Glitch and three scoped Robot effects were reviewed on p3/p6/p7/p9; see
+M1_ROBOT_AUDIT.md. The supplied Robot order is not a full setup distribution.
+Exact-zero/unpayable Robot interruption blocks before effects; unknown Robots
+and source exhaustion also remain explicit boundaries. Full catalogs and
+terminal semantics are not made verified by these nonterminal handlers.
