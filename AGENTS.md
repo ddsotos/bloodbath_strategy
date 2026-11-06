@@ -33,3 +33,6 @@ Read `README.md`, `docs/RESEARCH_DESIGN.md`, `docs/ARCHITECTURE.md`, `docs/ROADM
 
 ## Immediate first task
 Implement Roadmap Milestone 0 and the initial part of Milestone 1: CMake project with tests, RNG/replay abstractions, observation boundary, event-clock / death-record data types, and separate official vs shadow outcome types. Use toy transition fixtures *only if labelled*, until authoritative rule details are available. Do not claim a playable or strategically strong AI yet.
+
+## Multi-agent collaboration
+Read [docs/MULTI_AGENT.md](docs/MULTI_AGENT.md) before delegating. Lead agent (preferred Sol) owns architecture, game rules semantics, integration and sign-off. Delegate independent rule provenance, test specification, and CI/benchmark work to up to three subagents (preferred Luna) when supported. Assign disjoint files; review deliverables and test them before merging. If model-specific delegation is not available, run tasks serially instead of claiming delegation occurred.
