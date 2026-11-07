@@ -10,6 +10,10 @@ limits remain those in RULE_PROVENANCE.md and M1_ROBOT_AUDIT.md.
 
 ## Scope
 
+This document describes the schema-8 base-funded slice. The later
+[Robot choices](M1_ROBOT_CHOICES.md) add nonterminal Kale Farm losses and schema
+9, superseding the Building-loss stop described below.
+
 Waiter and Mining Robot now support reviewed Kale Farms when BOTH bases cover
 the loss and BOTH total populations strictly exceed it. Base may become zero
 while retained Building population keeps the colony alive. No Building is lost
