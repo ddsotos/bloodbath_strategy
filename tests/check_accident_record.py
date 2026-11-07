@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 record = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert record["schema_version"] == 5 and record["full_game"] is False
-assert record["policy_version"] == "caller-commands-v5"
+assert record["schema_version"] == 6 and record["full_game"] is False
+assert record["policy_version"] == "caller-commands-v6"
 assert [c["kind"] for c in record["commands"]] == [0, 7, 7, 8]
 points = record["checkpoints"]
 assert points[0]["phase"] == 14 and points[0]["accident"] is None
@@ -28,4 +28,4 @@ for p, card, boxes in [(0, 1, 7), (1, 4, 3)]:
 assert final["first_deaths"] == [None, None]
 assert final["conditional_official_outcome"] is None
 assert record["shadow"] is None
-print("Accident schema-5 JSON audit passed")
+print("Accident schema-6 JSON audit passed")

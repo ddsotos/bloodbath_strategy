@@ -111,8 +111,7 @@ Phase Session::advance() {
     }
     const auto revealed_effect = effect_of(config_, reveal->card);
     const bool has_buildings = !next.colonies.colonies[0].buildings.empty() || !next.colonies.colonies[1].buildings.empty();
-    if (has_buildings && (revealed_effect == Effect::hunger ||
-                          robot_effect(revealed_effect))) {
+    if (has_buildings && robot_effect(revealed_effect)) {
         next.phase = Phase::blocked_tableau_effect;
         next.progress = deck.snapshot();
         state_ = std::move(next);
@@ -132,15 +131,34 @@ Phase Session::advance() {
             deck.finish_active();
         }
         break;
-    case Effect::hunger:
-        // p6: zero buildings => zero food payment, zero deaths, +2 base people.
-        for (auto& colony : next.colonies.colonies) {
-            const auto limit = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
-            if (colony.resources.people > limit - 2) throw std::overflow_error("Hunger population overflow");
-            colony.resources.people += 2;
+    case Effect::hunger: {
+        next.hunger.reset();
+        HungerRecord result;
+        bool needs_choice_or_terminal = false;
+        for (Player p = 0; p < 2; ++p) {
+            const auto& colony = next.colonies.colonies[p];
+            result.required_food[p] = colony.buildings.size();
+            result.spent_food[p] = std::min(colony.resources.food, result.required_food[p]);
+            result.population_loss[p] = result.required_food[p] - result.spent_food[p];
+            const auto total = tableau::total_people(colony, config_.building_catalog);
+            needs_choice_or_terminal = needs_choice_or_terminal ||
+                result.population_loss[p] > colony.resources.people || result.population_loss[p] >= total;
+            result.population_gain[p] = result.population_loss[p] == 0 ? 2 : 0;
         }
+        if (needs_choice_or_terminal) { next.phase = Phase::blocked_population_payment; break; }
+        for (Player p = 0; p < 2; ++p) {
+            auto& colony = next.colonies.colonies[p];
+            const auto limit = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
+            if (tableau::total_people(colony, config_.building_catalog) > limit - result.population_gain[p])
+                throw std::overflow_error("Hunger population overflow");
+            colony.resources.food -= result.spent_food[p];
+            colony.resources.people -= result.population_loss[p];
+            colony.resources.people += result.population_gain[p];
+        }
+        next.hunger = result;
         deck.finish_active();
         break;
+    }
     case Effect::accident: {
         next.accident.reset();
         if (has_buildings) {
@@ -396,7 +414,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{5, manifest_hash, std::move(input), commands, {}};
+    Replay replay{6, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -404,7 +422,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 5 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 6 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

@@ -60,13 +60,16 @@ still enforces the bare context. Research and Paperwork can use this route;
 Kale Farm has no draw/discard trigger or immunity. Paperwork never changes the
 in-play Farm, printed people or boxes.
 
-If any Building exists, Hunger, Accident and current population-loss Robot
+In the original Tableau slice, Hunger, Accident and population-loss Robot
 paths stop as `blocked_tableau_effect` before **all** population/resource
 mutation. The old no-Building formulas are not reused. Trouble/Glitch can add
 cards because Kale Farm has no such trigger. Instruction Manual counts reviewed
 printed people; ties remain unresolved. A blocked trace is not completed play,
 survival, immunity or official end. Building loss and related Event adapters
 remain unimplemented.
+Later extensions add [nonterminal Accident choices](M1_ACCIDENT_CHOICES.md)
+and [base-funded Hunger payments](M1_HUNGER.md). Robot paths with Buildings
+remain blocked; refer to those extension documents for current boundaries.
 
 ## Schema 4 and information boundary
 

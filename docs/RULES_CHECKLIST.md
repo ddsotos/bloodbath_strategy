@@ -86,3 +86,6 @@ Nonterminal Accident now has a Kale Farm choice frame (M1_ACCIDENT_CHOICES.md)
 using the p2 loss and p7 payment rules. Cross-player schedule is an explicit
 convention; terminal interruption, Hunger/Robots with Buildings and general
 LOST effects remain unresolved. No full checklist item is marked complete.
+Hunger now implements the p6 food formula and loss-free +2 for no-Building/Kale
+contexts when shortage can be paid from base without death (M1_HUNGER.md).
+Its Building-loss choices and terminal cases remain blocked; full coverage is open.

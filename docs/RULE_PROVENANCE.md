@@ -74,6 +74,11 @@ See [RULES_CHECKLIST.md](RULES_CHECKLIST.md) for the unresolved gameplay items.
 
 ## Research conventions
 
+The [Hunger payment audit](M1_HUNGER.md) visually checks p6 requirements,
+shortage and loss-free bonus and p5 lack of Kale Farm Hunger modifiers in the
+pinned reproduction. Only base-funded nonterminal shortages are connected;
+Building-choice and terminal timing remain open.
+
 The [Accident choice frame](M1_ACCIDENT_CHOICES.md) connects the reviewed p2
 three-person loss to p7 payment and p5 Kale Farm metadata. Cross-player discard
 schedule remains a recorded caller convention; terminal cases with Buildings

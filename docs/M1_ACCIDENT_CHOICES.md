@@ -11,7 +11,8 @@ supplied deck order do not define physical copy counts or official setup.
 When Buildings exist, `advance` checks that BOTH players' total populations are
 strictly greater than three. Otherwise it stops at `blocked_population_payment`
 with no population/Building/box changes, no death record and no official result.
-Hunger and Robot handlers with Buildings remain blocked. The previous bare
+The later Hunger slice supports base-funded payments (M1_HUNGER.md); Robot
+handlers with Buildings remain blocked. The previous bare
 Accident handler, including its exact-zero cases, is preserved.
 
 If both bases cover three, automatic payment records an Accident result and

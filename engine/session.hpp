@@ -53,6 +53,13 @@ struct AccidentRecord {
     std::array<Player, 2> resolution_order{0, 1};
     bool operator==(const AccidentRecord&) const = default;
 };
+struct HungerRecord {
+    std::array<std::uint64_t, 2> required_food{};
+    std::array<std::uint64_t, 2> spent_food{};
+    std::array<std::uint64_t, 2> population_loss{};
+    std::array<std::uint64_t, 2> population_gain{};
+    bool operator==(const HungerRecord&) const = default;
+};
 struct Snapshot {
     base_rules::State colonies;
     progression::Snapshot progress;
@@ -68,6 +75,7 @@ struct Snapshot {
     std::array<std::optional<tableau::Choice>, 2> work_choices;
     std::optional<tableau::WorkRecord> tableau_work;
     std::optional<AccidentRecord> accident;
+    std::optional<HungerRecord> hunger;
     std::array<std::optional<std::vector<base_rules::Card>>, 2> loss_commitments;
     bool operator==(const Snapshot&) const = default;
 };
@@ -113,7 +121,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 5;
+    std::uint32_t schema = 6;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

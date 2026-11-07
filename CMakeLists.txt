@@ -42,6 +42,9 @@ target_link_libraries(replay_verify PRIVATE bloodbath)
 add_executable(session_demo tools/session_demo.cpp)
 target_link_libraries(session_demo PRIVATE bloodbath)
 if(BUILD_TESTING)
+  add_executable(hunger_tests tests/hunger_tests.cpp)
+  target_link_libraries(hunger_tests PRIVATE bloodbath)
+  add_test(NAME hunger_contracts COMMAND hunger_tests)
   add_executable(accident_tests tests/accident_tests.cpp)
   target_link_libraries(accident_tests PRIVATE bloodbath)
   add_test(NAME accident_contracts COMMAND accident_tests)
@@ -75,6 +78,8 @@ if(BUILD_TESTING)
   add_test(NAME replay_roundtrip COMMAND replay_verify)
   find_package(Python3 QUIET COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
+    add_test(NAME hunger_json COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_hunger_record.py $<TARGET_FILE:hunger_tests>)
     add_test(NAME accident_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_accident_record.py $<TARGET_FILE:accident_tests>)
     add_test(NAME session_json COMMAND ${Python3_EXECUTABLE}

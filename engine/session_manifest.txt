@@ -41,7 +41,7 @@ Replay/JSON schema3 includes private ordered_robots and next_robot index.
 Explicit tableau opt-in supports reviewed KaleFarm-only inplay context.
 Caller scope now excludes unmodeled external effects;known KaleFarm triggers run.
 Schema4 records Building catalog,opt-in,publicboxes,richWorkchoices/effectrecords.
-Hunger/Robot paths block before mutation if any Buildings
+Robot paths block before mutation if any Buildings
 exist;no silent use of no-Building formulas. InstructionManual counts printed
 people. Paperwork has no KaleFarm interaction;its certified draw frame supports it.
 Session score totals capped at signed64,including new printed people onBuild.
@@ -56,3 +56,11 @@ Base-sufficient player commits empty;no voluntary discard;active Progress waits.
 Final Accident record retains per-player payment and ordered transfer/boxloss.
 Pending commitments audit-only;observation offers own public Building choices.
 No claim official cross-player priority,terminal ordering or full Event catalog.
+Schema6 adds per-player Hunger requiredfood,spentfood,populationloss/gain audit.
+p6 Hunger uses Building count at event start,spends min(food,count),loses
+count-spent population as one loss;only loss0 gains2basepeople(including count0).
+KaleFarm FARM/PLAY effects do not trigger on Hunger.
+Require each base>=shortfall AND total>shortfall;otherwise stop before ALL
+resource mutation as blocked_population_payment;Building-choice/terminal pending.
+Preflight both players and signed64 total gain overflow on copies;no partial pay.
+No decision for automatic Hunger;active card finishes only after complete effect.
