@@ -60,7 +60,17 @@ Schema6 adds per-player Hunger requiredfood,spentfood,populationloss/gain audit.
 p6 Hunger uses Building count at event start,spends min(food,count),loses
 count-spent population as one loss;only loss0 gains2basepeople(including count0).
 KaleFarm FARM/PLAY effects do not trigger on Hunger.
-Require each base>=shortfall AND total>shortfall;otherwise stop before ALL
-resource mutation as blocked_population_payment;Building-choice/terminal pending.
+Require each total>shortfall;otherwise stop before ALL resource mutation as
+blocked_population_payment;terminal interruption pending.
 Preflight both players and signed64 total gain overflow on copies;no partial pay.
 No decision for automatic Hunger;active card finishes only after complete effect.
+Schema7 adds pending_hunger frozen payment fields,hunger_losses transfer/boxloss
+audit,phase15 hunger_choices and command9 resolve_hunger;commit_losses7 shared.
+If any base<shortfall open one private simultaneous Building-choice frame,
+no resource mutation;preflight gain overflow before opening.
+Validate full ordered choices on copy via reviewed Tableau loss adapter.
+Both commitments required;explicit player schedule controls shared discard order
+as caller convention,not verified official priority. Reuse fixed initial food
+payment/shortfall after Building losses;never recompute against smaller tableau.
+Completed frame stores Hunger amounts and population transfer/boxloss records,
+clears pending/commitments and finishes active. No post-loss PLAY/FARM trigger.

@@ -14,7 +14,7 @@ enum class Phase {
     ready, work_decision, blocked_unknown_card, blocked_event_queue,
     blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal,
     paperwork_draw_order, paperwork_discard, blocked_shared_draw,
-    blocked_robot_deck, blocked_robot_loss, blocked_tableau_effect, accident_choices
+    blocked_robot_deck, blocked_robot_loss, blocked_tableau_effect, accident_choices, hunger_choices
 };
 struct Config {
     std::uint64_t seed = 0;
@@ -76,6 +76,8 @@ struct Snapshot {
     std::optional<tableau::WorkRecord> tableau_work;
     std::optional<AccidentRecord> accident;
     std::optional<HungerRecord> hunger;
+    std::optional<HungerRecord> pending_hunger;
+    std::optional<AccidentRecord> hunger_losses;
     std::array<std::optional<std::vector<base_rules::Card>>, 2> loss_commitments;
     bool operator==(const Snapshot&) const = default;
 };
@@ -103,6 +105,7 @@ class Session {
     PaperworkRecord resolve_paperwork(std::array<Player, 2> explicit_discard_schedule);
     void commit_losses(Player, std::vector<base_rules::Card>);
     AccidentRecord resolve_accident(std::array<Player, 2> explicit_schedule);
+    HungerRecord resolve_hunger(std::array<Player, 2> explicit_schedule);
     Observation observe(Player) const;
     Snapshot snapshot() const { return state_; }
   private:
@@ -111,7 +114,7 @@ class Session {
     Snapshot state_;
 };
 enum class CommandKind { advance, commit, resolve_work, prepare_paperwork, commit_discards,
-                         resolve_paperwork, commit_choice, commit_losses, resolve_accident };
+                         resolve_paperwork, commit_choice, commit_losses, resolve_accident, resolve_hunger };
 struct Command {
     CommandKind kind = CommandKind::advance;
     Player player = 0;
@@ -121,7 +124,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 6;
+    std::uint32_t schema = 7;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

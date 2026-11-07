@@ -115,8 +115,10 @@ boxes, rich Work choices and effect records. Older session schemas reject;
 M0 formats remain unchanged.
 The [Accident extension](M1_ACCIDENT_CHOICES.md) introduced schema 5, adding
 nonterminal Kale Farm loss commitments and payment/transfer/box records.
-The current [Hunger extension](M1_HUNGER.md) uses schema 6, adding food and
+The [Hunger extension](M1_HUNGER.md) introduced schema 6, adding food and
 population payment/gain audit records.
+The current [Hunger choices](M1_HUNGER_CHOICES.md) use schema 7, adding frozen
+pending requirements and Building transfer/box-loss records.
 
 ## Run and validate
 

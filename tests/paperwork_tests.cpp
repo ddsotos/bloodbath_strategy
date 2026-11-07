@@ -242,7 +242,7 @@ void recycle_and_replay() {
     for (std::uint64_t seed = 0; seed < 32; ++seed) {
         input.config.seed = seed;
         const auto replay = session::record(input, commands);
-        require(replay.schema == 6 && replay == session::record(input, commands),
+        require(replay.schema == 7 && replay == session::record(input, commands),
                 "Paperwork schema or repeated recording wrong");
         const auto final = session::verify(replay);
         require(final == replay.checkpoints.back() && final.paperwork->completed &&

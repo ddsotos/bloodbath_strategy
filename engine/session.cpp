@@ -68,6 +68,7 @@ void execute(Session& session, const Command& command) {
     case CommandKind::resolve_paperwork: (void)session.resolve_paperwork(command.schedule); break;
     case CommandKind::commit_losses: session.commit_losses(command.player, command.cards); break;
     case CommandKind::resolve_accident: (void)session.resolve_accident(command.schedule); break;
+    case CommandKind::resolve_hunger: (void)session.resolve_hunger(command.schedule); break;
     case CommandKind::commit_choice: {
         tableau::Choice choice{command.action};
         if (command.action == base_rules::WorkAction::build) {
@@ -133,24 +134,35 @@ Phase Session::advance() {
         break;
     case Effect::hunger: {
         next.hunger.reset();
+        next.pending_hunger.reset();
+        next.hunger_losses.reset();
         HungerRecord result;
-        bool needs_choice_or_terminal = false;
+        bool needs_choice = false;
+        bool terminal_possible = false;
         for (Player p = 0; p < 2; ++p) {
             const auto& colony = next.colonies.colonies[p];
             result.required_food[p] = colony.buildings.size();
             result.spent_food[p] = std::min(colony.resources.food, result.required_food[p]);
             result.population_loss[p] = result.required_food[p] - result.spent_food[p];
             const auto total = tableau::total_people(colony, config_.building_catalog);
-            needs_choice_or_terminal = needs_choice_or_terminal ||
-                result.population_loss[p] > colony.resources.people || result.population_loss[p] >= total;
+            needs_choice = needs_choice || result.population_loss[p] > colony.resources.people;
+            terminal_possible = terminal_possible || result.population_loss[p] >= total;
             result.population_gain[p] = result.population_loss[p] == 0 ? 2 : 0;
         }
-        if (needs_choice_or_terminal) { next.phase = Phase::blocked_population_payment; break; }
+        if (terminal_possible) { next.phase = Phase::blocked_population_payment; break; }
+        for (Player p = 0; p < 2; ++p) {
+            const auto limit = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
+            if (tableau::total_people(next.colonies.colonies[p], config_.building_catalog) > limit - result.population_gain[p])
+                throw std::overflow_error("Hunger population overflow");
+        }
+        if (needs_choice) {
+            next.pending_hunger = result; // Keep original Building count and payment despite later losses.
+            deck.record_decision();
+            next.phase = Phase::hunger_choices;
+            break;
+        }
         for (Player p = 0; p < 2; ++p) {
             auto& colony = next.colonies.colonies[p];
-            const auto limit = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
-            if (tableau::total_people(colony, config_.building_catalog) > limit - result.population_gain[p])
-                throw std::overflow_error("Hunger population overflow");
             colony.resources.food -= result.spent_food[p];
             colony.resources.people -= result.population_loss[p];
             colony.resources.people += result.population_gain[p];
@@ -315,18 +327,21 @@ Observation Session::observe(Player p) const {
     const auto required = state_.phase == Phase::paperwork_discard ?
         std::min(std::size_t{2}, state_.colonies.colonies[p].hand.size()) : 0;
     std::vector<base_rules::Card> loss_options;
-    if (state_.phase == Phase::accident_choices && !state_.loss_commitments[p] &&
-        state_.colonies.colonies[p].resources.people < 3)
+    const auto loss_amount = state_.phase == Phase::hunger_choices ? state_.pending_hunger->population_loss[p] : 3;
+    if ((state_.phase == Phase::accident_choices || state_.phase == Phase::hunger_choices) &&
+        !state_.loss_commitments[p] && state_.colonies.colonies[p].resources.people < loss_amount)
         loss_options = state_.colonies.colonies[p].buildings;
     return {colony, progression::Deck(state_.progress, config_.seed).observe(),
             state_.phase, state_.official, required, work_options(p), loss_options};
 }
 void Session::commit_losses(Player p, std::vector<base_rules::Card> cards) {
-    if (p > 1 || state_.phase != Phase::accident_choices || state_.loss_commitments[p])
-        throw std::invalid_argument("not an open Accident loss commitment");
+    if (p > 1 || (state_.phase != Phase::accident_choices && state_.phase != Phase::hunger_choices) || state_.loss_commitments[p])
+        throw std::invalid_argument("not an open loss commitment");
     auto trial = state_.colonies;
-    (void)tableau::lose_people(trial, config_.building_catalog, p, 3, cards,
-                               state_.progress.clock, "Accident", config_.scope);
+    const bool hunger = state_.phase == Phase::hunger_choices;
+    const auto amount = hunger ? state_.pending_hunger->population_loss[p] : 3;
+    (void)tableau::lose_people(trial, config_.building_catalog, p, amount, cards,
+                               state_.progress.clock, hunger ? "Hunger" : "Accident", config_.scope);
     state_.loss_commitments[p] = std::move(cards);
 }
 AccidentRecord Session::resolve_accident(std::array<Player, 2> schedule) {
@@ -344,6 +359,33 @@ AccidentRecord Session::resolve_accident(std::array<Player, 2> schedule) {
     deck.finish_active();
     next.progress = deck.snapshot();
     next.accident = result;
+    next.loss_commitments = {};
+    next.phase = Phase::ready;
+    state_ = std::move(next);
+    return result;
+}
+HungerRecord Session::resolve_hunger(std::array<Player, 2> schedule) {
+    if (state_.phase != Phase::hunger_choices || !state_.loss_commitments[0] || !state_.loss_commitments[1])
+        throw std::invalid_argument("Hunger requires both loss commitments");
+    if (!((schedule[0] == 0 && schedule[1] == 1) || (schedule[0] == 1 && schedule[1] == 0)))
+        throw std::invalid_argument("loss schedule must be a player permutation");
+    auto next = state_;
+    const auto result = *next.pending_hunger;
+    AccidentRecord losses{};
+    losses.resolution_order = schedule;
+    for (const Player p : schedule) {
+        losses.losses[p] = tableau::lose_people(next.colonies, config_.building_catalog, p,
+            result.population_loss[p], *next.loss_commitments[p], next.progress.clock, "Hunger", config_.scope);
+        auto& colony = next.colonies.colonies[p];
+        colony.resources.food -= result.spent_food[p];
+        colony.resources.people += result.population_gain[p]; // Range checked before opening this frame.
+    }
+    progression::Deck deck(next.progress, config_.seed);
+    deck.finish_active();
+    next.progress = deck.snapshot();
+    next.hunger = result;
+    next.hunger_losses = std::move(losses);
+    next.pending_hunger.reset();
     next.loss_commitments = {};
     next.phase = Phase::ready;
     state_ = std::move(next);
@@ -414,7 +456,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{6, manifest_hash, std::move(input), commands, {}};
+    Replay replay{7, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -422,7 +464,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 6 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 7 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);
