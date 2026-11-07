@@ -154,6 +154,15 @@ void snapshot(std::ostream& out, const Snapshot& value, const Config& config) {
         if (value.work_choices[p]) choice(out, *value.work_choices[p]); else out << "null";
     }
     out << "],\"tableau_work\":"; tableau_record(out, value.tableau_work);
+    out << ",\"hunger\":";
+    if (!value.hunger) out << "null";
+    else {
+        const auto& h = *value.hunger;
+        out << "{\"required_food\":[" << h.required_food[0] << ',' << h.required_food[1]
+            << "],\"spent_food\":[" << h.spent_food[0] << ',' << h.spent_food[1]
+            << "],\"population_loss\":[" << h.population_loss[0] << ',' << h.population_loss[1]
+            << "],\"population_gain\":[" << h.population_gain[0] << ',' << h.population_gain[1] << "]}";
+    }
     out << ",\"accident\":"; accident(out, value.accident);
     out << ",\"loss_commitments\":[";
     for (Player p = 0; p < 2; ++p) {
@@ -168,9 +177,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":5,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":6,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v5\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v6\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""

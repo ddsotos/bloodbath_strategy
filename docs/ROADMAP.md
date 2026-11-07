@@ -44,6 +44,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Accident now connects nonterminal Kale Farm loss choices with private
   commitments, explicit resolution order and schema-5 replay/JSON records.
   Other affected Events/Robots and terminal cases remain open (M1_ACCIDENT_CHOICES.md).
+  Hunger now pays Building-count food and base-funded nonterminal shortages,
+  applying +2 only without population loss, with schema-6 audit records.
+  Building-loss and terminal frames remain pending (M1_HUNGER.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

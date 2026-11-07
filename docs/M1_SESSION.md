@@ -113,8 +113,10 @@ private supplied Robot source and consumed index, and rejects older schemas.
 The reviewed Tableau extension introduced schema 4: opt-in definitions,
 boxes, rich Work choices and effect records. Older session schemas reject;
 M0 formats remain unchanged.
-The current [Accident extension](M1_ACCIDENT_CHOICES.md) uses schema 5, adding
+The [Accident extension](M1_ACCIDENT_CHOICES.md) introduced schema 5, adding
 nonterminal Kale Farm loss commitments and payment/transfer/box records.
+The current [Hunger extension](M1_HUNGER.md) uses schema 6, adding food and
+population payment/gain audit records.
 
 ## Run and validate
 
