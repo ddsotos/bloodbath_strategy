@@ -173,7 +173,7 @@ void repeated_robot_and_replay() {
     for (std::uint64_t seed = 0; seed < 16; ++seed) {
         input.config.seed = seed;
         const auto replay = ses::record(input, {{}, {}});
-        require(replay.schema == 11 && replay == ses::record(input, {{}, {}}) &&
+        require(replay.schema == 12 && replay == ses::record(input, {{}, {}}) &&
                     ses::verify(replay) == replay.checkpoints.back(), "Robot Tableau replay diverged");
         auto changed = replay;
         changed.checkpoints[0].robot->food_loss[0]++;

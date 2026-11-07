@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 trace = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert trace["schema_version"] == 11 and trace["full_game"] is False
+assert trace["schema_version"] == 12 and trace["full_game"] is False
 expected = dict(status="blocked_rule", reason="butler_box_selector_unverified",
     terminal_resolved=False, has_conditional_outcome=False)
 assert trace["trace_assessment"] == expected
@@ -30,4 +30,4 @@ for mode in ([], ["--paperwork"], ["--robots"], ["--tableau"]):
         assert view["has_conditional_outcome"] == (point["conditional_official_outcome"] is not None)
         if point["phase"] in (1, 8, 9):
             assert view["status"] == "awaiting_input" and view["terminal_resolved"] is False
-print("Trace assessment schema-11 JSON audit passed")
+print("Trace assessment schema-12 JSON audit passed")

@@ -62,6 +62,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Schema-11 trace assessments now report waiting/blocked/in-progress/conditional
   terminal states with explicit reason tags. Accident terminal interruption with
   Building choices remains unverified (M1_TRACE_ASSESSMENT.md).
+  Schema-12 adds the p11 Budget Cuts money-loss handler, capped at available
+  money and recorded per player (M1_BUDGET_CUTS_AUDIT.md). Development deck
+  setup and other card triggers remain unimplemented.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

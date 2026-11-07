@@ -204,6 +204,10 @@ void snapshot(std::ostream& out, const Snapshot& value, const Config& config) {
     out << ",\"hunger_losses\":"; accident(out, value.hunger_losses);
     out << ",\"accident\":"; accident(out, value.accident);
     out << ",\"robot\":"; robot(out, value.robot);
+    out << ",\"budget_cuts\":";
+    if (!value.budget_cuts) out << "null";
+    else out << "{\"money_loss\":[" << value.budget_cuts->money_loss[0] << ','
+        << value.budget_cuts->money_loss[1] << "]}";
     out << ",\"pending_robot\":";
     if (value.pending_robot) out << static_cast<unsigned>(*value.pending_robot); else out << "null";
     out << ",\"loss_commitments\":[";
@@ -219,9 +223,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":11,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":12,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v11\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v12\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""

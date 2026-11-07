@@ -125,3 +125,7 @@ the two URLs above. PDF screenshot requests were also made for pages 1, 2, and 1
 no detailed visual rule audit is asserted here. No source file was downloaded
 into the repository, hashed, or redistributed. No engine changes or gameplay
 tests are part of this documentation-only source discovery.
+
+
+The [Budget Cuts audit](M1_BUDGET_CUTS_AUDIT.md) reviews p11's explicit loss
+examples and records the conditional implementation limits.
