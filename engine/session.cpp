@@ -8,6 +8,20 @@
 
 namespace bloodbath::session {
 namespace {
+std::uint64_t robot_amount(Effect effect) { return effect == Effect::mining_robot ? 6 : 4; }
+std::string robot_cause(Effect effect) {
+    return effect == Effect::mining_robot ? "Mining Robot" :
+        (effect == Effect::robot_butler ? "Robot Butler" : "Robot Waiter");
+}
+void robot_tail(base_rules::State& state, RobotRecord& result) {
+    // Only reviewed Kale Farms can be in play; they are not Mines.
+    if (result.effect == Effect::robot_waiter)
+        for (Player p = 0; p < 2; ++p) {
+            auto& colony = state.colonies[p];
+            result.food_loss[p] = std::min(std::uint64_t{2}, colony.resources.food);
+            colony.resources.food -= result.food_loss[p];
+        }
+}
 bool robot_effect(Effect effect) {
     return effect == Effect::robot_butler || effect == Effect::robot_waiter || effect == Effect::mining_robot;
 }
@@ -69,6 +83,7 @@ void execute(Session& session, const Command& command) {
     case CommandKind::commit_losses: session.commit_losses(command.player, command.cards); break;
     case CommandKind::resolve_accident: (void)session.resolve_accident(command.schedule); break;
     case CommandKind::resolve_hunger: (void)session.resolve_hunger(command.schedule); break;
+    case CommandKind::resolve_robot: (void)session.resolve_robot(command.schedule); break;
     case CommandKind::commit_choice: {
         tableau::Choice choice{command.action};
         if (command.action == base_rules::WorkAction::build) {
@@ -114,6 +129,7 @@ Phase Session::advance() {
     const bool has_buildings = !next.colonies.colonies[0].buildings.empty() || !next.colonies.colonies[1].buildings.empty();
     if (has_buildings && revealed_effect == Effect::robot_butler) {
         next.robot.reset();
+        next.pending_robot.reset();
         next.phase = Phase::blocked_tableau_effect;
         next.progress = deck.snapshot();
         state_ = std::move(next);
@@ -230,31 +246,33 @@ Phase Session::advance() {
     case Effect::robot_waiter:
     case Effect::mining_robot: {
         next.robot.reset();
+        next.pending_robot.reset();
         const auto effect = effect_of(config_, reveal->card);
-        const std::uint64_t amount = effect == Effect::mining_robot ? 6 : 4;
+        const auto amount = robot_amount(effect);
         bool possible_failure = false;
-        for (const auto& colony : next.colonies.colonies)
-            possible_failure = possible_failure || colony.resources.people < amount ||
-                tableau::total_people(colony, config_.building_catalog) <= amount;
+        bool needs_choice = false;
+        for (const auto& colony : next.colonies.colonies) {
+            possible_failure = possible_failure || tableau::total_people(colony, config_.building_catalog) <= amount;
+            needs_choice = needs_choice || colony.resources.people < amount;
+        }
         if (possible_failure) {
             // Do not settle whether post-loss Robot instructions run after first death.
             next.phase = Phase::blocked_robot_loss;
             break;
         }
-        const std::string cause = effect == Effect::mining_robot ? "Mining Robot" :
-            (effect == Effect::robot_butler ? "Robot Butler" : "Robot Waiter");
+        if (needs_choice) {
+            next.pending_robot = effect;
+            deck.record_decision();
+            next.phase = Phase::robot_choices;
+            break;
+        }
+        const auto cause = robot_cause(effect);
         RobotRecord result{};
         result.effect = effect;
         for (Player p = 0; p < 2; ++p)
             result.losses[p] = tableau::lose_people(next.colonies, config_.building_catalog, p,
                 amount, {}, reveal->clock, cause, config_.scope);
-        // Butler is bare-only. Reviewed Kale Farms are not Mines and have no Robot trigger.
-        if (effect == Effect::robot_waiter)
-            for (Player p = 0; p < 2; ++p) {
-                auto& colony = next.colonies.colonies[p];
-                result.food_loss[p] = std::min(std::uint64_t{2}, colony.resources.food);
-                colony.resources.food -= result.food_loss[p];
-            }
+        robot_tail(next.colonies, result); // Both population payments completed first.
         next.robot = std::move(result);
         deck.finish_active();
         break;
@@ -334,21 +352,26 @@ Observation Session::observe(Player p) const {
     const auto required = state_.phase == Phase::paperwork_discard ?
         std::min(std::size_t{2}, state_.colonies.colonies[p].hand.size()) : 0;
     std::vector<base_rules::Card> loss_options;
-    const auto loss_amount = state_.phase == Phase::hunger_choices ? state_.pending_hunger->population_loss[p] : 3;
-    if ((state_.phase == Phase::accident_choices || state_.phase == Phase::hunger_choices) &&
+    const auto loss_amount = state_.phase == Phase::hunger_choices ? state_.pending_hunger->population_loss[p] :
+        (state_.phase == Phase::robot_choices ? robot_amount(*state_.pending_robot) : 3);
+    if ((state_.phase == Phase::accident_choices || state_.phase == Phase::hunger_choices ||
+         state_.phase == Phase::robot_choices) &&
         !state_.loss_commitments[p] && state_.colonies.colonies[p].resources.people < loss_amount)
         loss_options = state_.colonies.colonies[p].buildings;
     return {colony, progression::Deck(state_.progress, config_.seed).observe(),
             state_.phase, state_.official, required, work_options(p), loss_options};
 }
 void Session::commit_losses(Player p, std::vector<base_rules::Card> cards) {
-    if (p > 1 || (state_.phase != Phase::accident_choices && state_.phase != Phase::hunger_choices) || state_.loss_commitments[p])
+    if (p > 1 || (state_.phase != Phase::accident_choices && state_.phase != Phase::hunger_choices &&
+                 state_.phase != Phase::robot_choices) || state_.loss_commitments[p])
         throw std::invalid_argument("not an open loss commitment");
     auto trial = state_.colonies;
     const bool hunger = state_.phase == Phase::hunger_choices;
-    const auto amount = hunger ? state_.pending_hunger->population_loss[p] : 3;
+    const bool robot = state_.phase == Phase::robot_choices;
+    const auto amount = hunger ? state_.pending_hunger->population_loss[p] :
+        (robot ? robot_amount(*state_.pending_robot) : 3);
     (void)tableau::lose_people(trial, config_.building_catalog, p, amount, cards,
-                               state_.progress.clock, hunger ? "Hunger" : "Accident", config_.scope);
+        state_.progress.clock, hunger ? "Hunger" : (robot ? robot_cause(*state_.pending_robot) : "Accident"), config_.scope);
     state_.loss_commitments[p] = std::move(cards);
 }
 AccidentRecord Session::resolve_accident(std::array<Player, 2> schedule) {
@@ -393,6 +416,30 @@ HungerRecord Session::resolve_hunger(std::array<Player, 2> schedule) {
     next.hunger = result;
     next.hunger_losses = std::move(losses);
     next.pending_hunger.reset();
+    next.loss_commitments = {};
+    next.phase = Phase::ready;
+    state_ = std::move(next);
+    return result;
+}
+RobotRecord Session::resolve_robot(std::array<Player, 2> schedule) {
+    if (state_.phase != Phase::robot_choices || !state_.loss_commitments[0] || !state_.loss_commitments[1])
+        throw std::invalid_argument("Robot requires both loss commitments");
+    if (!((schedule[0] == 0 && schedule[1] == 1) || (schedule[0] == 1 && schedule[1] == 0)))
+        throw std::invalid_argument("loss schedule must be a player permutation");
+    auto next = state_;
+    RobotRecord result{};
+    result.effect = *next.pending_robot;
+    result.resolution_order = schedule;
+    for (const Player p : schedule)
+        result.losses[p] = tableau::lose_people(next.colonies, config_.building_catalog, p,
+            robot_amount(result.effect), *next.loss_commitments[p], next.progress.clock,
+            robot_cause(result.effect), config_.scope);
+    robot_tail(next.colonies, result);
+    progression::Deck deck(next.progress, config_.seed);
+    deck.finish_active();
+    next.progress = deck.snapshot();
+    next.robot = result;
+    next.pending_robot.reset();
     next.loss_commitments = {};
     next.phase = Phase::ready;
     state_ = std::move(next);
@@ -463,7 +510,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{8, manifest_hash, std::move(input), commands, {}};
+    Replay replay{9, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -471,7 +518,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 8 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 9 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

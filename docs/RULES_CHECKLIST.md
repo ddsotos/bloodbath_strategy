@@ -95,3 +95,6 @@ and full card coverage remain open; caller schedule is a convention.
 M1_ROBOT_TABLEAU.md extends p7/p9 Waiter/Mining to base-funded nonterminal Kale
 contexts. Box choices, Robot Building-loss frames, other Buildings and terminal
 interruption remain pending; this does not complete the Robot catalog.
+M1_ROBOT_CHOICES.md now connects nonterminal Kale Farm losses for Waiter/Mining
+under the p7 all-population-before-tail barrier. Other Buildings, Butler boxes
+and terminal interruption remain pending; ordering protocol is a caller convention.

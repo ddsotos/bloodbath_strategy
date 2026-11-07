@@ -77,9 +77,18 @@ clears pending/commitments and finishes active. No post-loss PLAY/FARM trigger.
 Schema8 adds Robot effect tag,per-player population payment,foodloss/moneygain.
 p7 all players pay population before tail;p9 Waiter4thenmin(2,food),Mining6then
 money for listedMines only;KaleFarm is not a Mine and triggers no Robot effect.
-Allow reviewed KaleFarm Waiter/Mining only when both base>=loss AND total>loss;
+Allow reviewed KaleFarm Waiter/Mining only when both total>loss;
 otherwise blocked_robot_loss before ALL population/tail mutation,no death.
 Base can reach0 while retained printedpopulation keeps colony alive.
 Butler with any Buildings remains blocked_tableau_effect(box choice pending).
-Robot Building-loss/terminal cases and non-Kale definitions remain unsupported.
+Robot terminal cases and non-Kale definitions remain unsupported.
 RobotRecord clears on each known Robot reveal;automatic handling adds no decision.
+Schema9 adds phase16 robot_choices,command10 resolve_robot,pending_robot tag,
+and resolution_order to RobotRecord;commit_losses7 shared with other loss frames.
+If any base<printedloss open private full ordered Building choices for both,
+no resources mutate before both locked. Base-funded side commits empty.
+Resolve on copy in recorded caller schedule;apply ALL players population losses
+including printedtransfers/discardedcards/boxes BEFORE any Robot tail.
+Waiter tail min2food,Mining no Kale bonus;no LOST/PLAY/FARM on Kale loss.
+Clear pending/commitments on completion;decision clock once per choice frame.
+Explicit cross-player schedule/private commitment protocol are caller conventions.

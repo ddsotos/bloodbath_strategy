@@ -74,6 +74,10 @@ See [RULES_CHECKLIST.md](RULES_CHECKLIST.md) for the unresolved gameplay items.
 
 ## Research conventions
 
+The [Robot choice audit](M1_ROBOT_CHOICES.md) visually checks p7 Building
+transfers/discard/box loss before p9 Waiter/Mining tails, with p5 Kale Farm lacking
+LOST effects. Nonterminal choices only; shared ordering/commitment is a convention.
+
 The [Robot Tableau audit](M1_ROBOT_TABLEAU.md) visually confirms p7 loss-before-tail
 and p9 Waiter/Mining effects. P5 Kale Farm has no Robot trigger and is not a named
 Mine. Only base-funded nonterminal cases are connected; other effects remain open.

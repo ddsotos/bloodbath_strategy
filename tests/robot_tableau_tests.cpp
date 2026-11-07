@@ -111,13 +111,13 @@ void preflight_and_unsupported_boundaries() {
             input.config.effects[100] = effect;
             input.colonies.colonies[weak].resources.people = amount - 1;
             ses::Session game(input);
-            require(game.advance() == Phase::blocked_robot_loss &&
+            require(game.advance() == Phase::robot_choices && game.snapshot().pending_robot == effect &&
                         game.snapshot().colonies == input.colonies && !game.snapshot().robot &&
                         !game.snapshot().deaths[0] && !game.snapshot().deaths[1] && !game.snapshot().official,
-                    "unsupported Building choice partly applied Robot loss/tail");
+                    "pending Building choice partly applied Robot loss/tail");
             const auto blocked = game.snapshot();
-            require(game.advance() == Phase::blocked_robot_loss && game.snapshot() == blocked,
-                    "blocked Robot advanced past unresolved effect");
+            require(game.advance() == Phase::robot_choices && game.snapshot() == blocked,
+                    "pending Robot advanced past unresolved effect");
         }
         auto mixed = fixture();
         mixed.progress.deck = {100};
@@ -173,7 +173,7 @@ void repeated_robot_and_replay() {
     for (std::uint64_t seed = 0; seed < 16; ++seed) {
         input.config.seed = seed;
         const auto replay = ses::record(input, {{}, {}});
-        require(replay.schema == 8 && replay == ses::record(input, {{}, {}}) &&
+        require(replay.schema == 9 && replay == ses::record(input, {{}, {}}) &&
                     ses::verify(replay) == replay.checkpoints.back(), "Robot Tableau replay diverged");
         auto changed = replay;
         changed.checkpoints[0].robot->food_loss[0]++;
