@@ -74,6 +74,10 @@ See [RULES_CHECKLIST.md](RULES_CHECKLIST.md) for the unresolved gameplay items.
 
 ## Research conventions
 
+The [Butler audit](M1_BUTLER.md) visually verifies p7/p9 population-before-box,
+Building-box disposal and absent-box failure, with p5 Kale metadata. Rechecking
+p7/p8/p9 did not establish a multi-target box selector; those tails remain blocked.
+
 The [Robot choice audit](M1_ROBOT_CHOICES.md) visually checks p7 Building
 transfers/discard/box loss before p9 Waiter/Mining tails, with p5 Kale Farm lacking
 LOST effects. Nonterminal choices only; shared ordering/commitment is a convention.

@@ -121,8 +121,10 @@ The [Hunger choices](M1_HUNGER_CHOICES.md) introduced schema 7, adding frozen
 pending requirements and Building transfer/box-loss records.
 The [Robot Tableau](M1_ROBOT_TABLEAU.md) extension introduced schema 8,
 adding Robot population payment and tail resource records.
-The current [Robot choices](M1_ROBOT_CHOICES.md) extension uses schema 9,
+The [Robot choices](M1_ROBOT_CHOICES.md) extension introduced schema 9,
 adding pending Robot effect and explicit population-loss resolution order.
+The current [Butler extension](M1_BUTLER.md) uses schema 10, adding box target
+and Robot completion fields, with explicit stops for ambiguous box selection.
 
 ## Run and validate
 

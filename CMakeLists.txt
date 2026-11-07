@@ -42,6 +42,9 @@ target_link_libraries(replay_verify PRIVATE bloodbath)
 add_executable(session_demo tools/session_demo.cpp)
 target_link_libraries(session_demo PRIVATE bloodbath)
 if(BUILD_TESTING)
+  add_executable(butler_tests tests/butler_tests.cpp)
+  target_link_libraries(butler_tests PRIVATE bloodbath)
+  add_test(NAME butler_contracts COMMAND butler_tests)
   add_executable(robot_choices_tests tests/robot_choices_tests.cpp)
   target_link_libraries(robot_choices_tests PRIVATE bloodbath)
   add_test(NAME robot_choices_contracts COMMAND robot_choices_tests)
@@ -87,6 +90,8 @@ if(BUILD_TESTING)
   add_test(NAME replay_roundtrip COMMAND replay_verify)
   find_package(Python3 QUIET COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
+    add_test(NAME butler_json COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_butler_record.py $<TARGET_FILE:butler_tests>)
     add_test(NAME robot_choices_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_robot_choices_record.py $<TARGET_FILE:robot_choices_tests>)
     add_test(NAME robot_tableau_json COMMAND ${Python3_EXECUTABLE}

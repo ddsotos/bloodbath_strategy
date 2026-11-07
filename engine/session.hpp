@@ -67,6 +67,8 @@ struct RobotRecord {
     std::array<std::uint64_t, 2> food_loss{};
     std::array<std::uint64_t, 2> money_gain{};
     std::array<Player, 2> resolution_order{0, 1};
+    std::array<std::optional<base_rules::Card>, 2> box_loss{};
+    bool completed = true;
     bool operator==(const RobotRecord&) const = default;
 };
 struct Snapshot {
@@ -137,7 +139,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 9;
+    std::uint32_t schema = 10;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

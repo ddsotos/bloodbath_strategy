@@ -268,22 +268,6 @@ void building_population_guards_and_paperwork() {
                 living.snapshot().official->scores == bloodbath::Scores{5, 30} &&
                 !living.snapshot().deaths[0], "Instruction Manual did not include printed population");
 
-    for (const auto effect : {Effect::robot_butler}) {
-        auto blocked_input = fixture();
-        place(blocked_input.colonies, 0, 0, 2);
-        blocked_input.progress.deck = {200};
-        blocked_input.config.effects[200] = effect;
-        session::Session blocked(blocked_input);
-        require(blocked.advance() == Phase::blocked_tableau_effect &&
-                    blocked.snapshot().colonies == blocked_input.colonies &&
-                    !blocked.snapshot().deaths[0] && !blocked.snapshot().deaths[1] &&
-                    !blocked.snapshot().official,
-                "old no-Building Event logic ran against a Tableau");
-        const auto saved = blocked.snapshot();
-        require(blocked.advance() == Phase::blocked_tableau_effect && blocked.snapshot() == saved,
-                "blocked Tableau event was skipped");
-    }
-
     auto paperwork_input = fixture();
     place(paperwork_input.colonies, 0, 0, 2);
     paperwork_input.progress.deck = {200};
@@ -318,7 +302,7 @@ void replay_rich_targets_and_effects() {
     for (std::uint64_t seed = 0; seed < 32; ++seed) {
         input.config.seed = seed;
         const auto replay = session::record(input, commands);
-        require(replay.schema == 9 && replay == session::record(input, commands), "rich Work trace not reproducible");
+        require(replay.schema == 10 && replay == session::record(input, commands), "rich Work trace not reproducible");
         const auto final = session::verify(replay);
         require(final == replay.checkpoints.back() && final.official &&
                     final.official->scores == bloodbath::Scores{35, 30} &&

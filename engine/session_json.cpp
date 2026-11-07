@@ -126,7 +126,12 @@ void robot(std::ostream& out, const std::optional<RobotRecord>& value) {
     out << ",\"food_loss\":[" << value->food_loss[0] << ',' << value->food_loss[1]
         << "],\"money_gain\":[" << value->money_gain[0] << ',' << value->money_gain[1]
         << "],\"resolution_order\":[" << static_cast<unsigned>(value->resolution_order[0]) << ','
-        << static_cast<unsigned>(value->resolution_order[1]) << "]}";
+        << static_cast<unsigned>(value->resolution_order[1]) << "],\"box_loss\":[";
+    for (Player p = 0; p < 2; ++p) {
+        if (p) out << ',';
+        if (value->box_loss[p]) out << *value->box_loss[p]; else out << "null";
+    }
+    out << "],\"completed\":" << (value->completed ? "true" : "false") << '}';
 }
 void hunger(std::ostream& out, const std::optional<HungerRecord>& value) {
     if (!value) { out << "null"; return; }
@@ -196,9 +201,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":9,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":10,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v9\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v10\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""
