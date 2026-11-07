@@ -273,7 +273,7 @@ void recycling_and_replay() {
     for (std::uint64_t seed = 0; seed < 32; ++seed) {
         cycling.config.seed = seed;
         const auto replay = session::record(cycling, cycles);
-        require(replay.schema == 11 && replay == session::record(cycling, cycles),
+        require(replay.schema == 12 && replay == session::record(cycling, cycles),
                 "Robot schema or recording determinism wrong");
         const auto final = session::verify(replay);
         require(final == replay.checkpoints.back() && final.phase == Phase::ready && final.next_robot == 0 &&

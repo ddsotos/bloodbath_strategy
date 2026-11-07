@@ -111,3 +111,6 @@ Only official_terminal with stored conditional outcome sets terminal_resolved.
 This does not certify full-game fidelity or settle terminal interruption rules.
 Source audit p6/p7 still does not establish completing another Accident player's
 Building choices after first zero;retain mixed terminal guard,TODO clarification.
+Schema12 adds Development Budget Cuts (p11): each player loses up to 2 money,
+limited to available money; zero money means no loss. Record actual loss per
+player. Does not implement Development deck setup or general card triggers.

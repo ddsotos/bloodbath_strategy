@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 trace = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert trace["schema_version"] == 11 and trace["full_game"] is False
-assert trace["policy_version"] == "caller-commands-v11"
+assert trace["schema_version"] == 12 and trace["full_game"] is False
+assert trace["policy_version"] == "caller-commands-v12"
 assert [c["kind"] for c in trace["commands"]] == [0, 0]
 initial = trace["initial"]["colonies"]
 for point, effect, amount, food in [(trace["checkpoints"][0], 9, 4, [1, 2]),
@@ -29,4 +29,4 @@ assert [p["base_people"] for p in players] == [0, 1]
 assert [p["total_people"] for p in players] == [5, 6]
 assert [p["food"] for p in players] == [0, 2]
 assert trace["shadow"] is None
-print("Robot Tableau schema-11 JSON audit passed")
+print("Robot Tableau schema-12 JSON audit passed")

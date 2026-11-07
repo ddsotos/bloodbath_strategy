@@ -96,6 +96,9 @@ if(BUILD_TESTING)
     add_test(NAME assessment_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_assessment_record.py
       $<TARGET_FILE:assessment_tests> $<TARGET_FILE:session_demo>)
+    add_test(NAME budget_cuts_json COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_budget_cuts_record.py
+      $<TARGET_FILE:session_tests>)
     add_test(NAME butler_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_butler_record.py $<TARGET_FILE:butler_tests>)
     add_test(NAME robot_choices_json COMMAND ${Python3_EXECUTABLE}

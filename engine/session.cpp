@@ -98,7 +98,7 @@ void validate(const Input& input) {
         if (effect != Effect::work && effect != Effect::trouble && effect != Effect::hunger &&
             effect != Effect::accident && effect != Effect::instruction_manual &&
             effect != Effect::unsupported && effect != Effect::paperwork && effect != Effect::glitch &&
-            !robot_effect(effect))
+            !robot_effect(effect) && effect != Effect::budget_cuts)
             throw std::invalid_argument("invalid effect tag");
     }
 }
@@ -268,6 +268,17 @@ Phase Session::advance() {
             deck.finish_active();
         }
         break;
+    case Effect::budget_cuts: {
+        BudgetCutsRecord result;
+        for (Player p = 0; p < 2; ++p) {
+            auto& money = next.colonies.colonies[p].resources.money;
+            result.money_loss[p] = std::min(std::uint64_t{2}, money);
+            money -= result.money_loss[p];
+        }
+        next.budget_cuts = result;
+        deck.finish_active();
+        break;
+    }
     case Effect::robot_butler:
     case Effect::robot_waiter:
     case Effect::mining_robot: {
@@ -530,7 +541,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{11, manifest_hash, std::move(input), commands, {}};
+    Replay replay{12, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -538,7 +549,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 11 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 12 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

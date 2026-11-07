@@ -4,6 +4,7 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <string_view>
 #include <utility>
 
 namespace session = bloodbath::session;
@@ -325,15 +326,54 @@ void trace_replay() {
     invalid.kind = static_cast<session::CommandKind>(255);
     rejects([&] { (void)session::record(fixture(), {invalid}); });
 }
+void budget_cuts_money_floor() {
+    auto input = single(Effect::budget_cuts);
+    input.colonies.colonies[0].resources.money = 2;
+    input.colonies.colonies[1].resources.money = 1;
+    input.progress.deck = {101};
+    input.config.effects = {{101, Effect::budget_cuts}};
+    auto zero = single(Effect::budget_cuts);
+    zero.colonies.colonies[0].resources.money = 0;
+    zero.colonies.colonies[1].resources.money = 0;
+    zero.progress.deck = {101};
+    zero.config.effects = {{101, Effect::budget_cuts}};
+    session::Session run(input);
+    require(run.advance() == Phase::ready, "Budget Cuts did not finish its reviewed effect");
+    const auto state = run.snapshot();
+    require(state.colonies.colonies[0].resources.money == 0 &&
+            state.colonies.colonies[1].resources.money == 0 && state.budget_cuts &&
+            state.budget_cuts->money_loss == std::array<std::uint64_t, 2>{2, 1},
+            "Budget Cuts did not cap loss at available money");
+    session::Session no_money(zero);
+    require(no_money.advance() == Phase::ready && no_money.snapshot().budget_cuts &&
+            no_money.snapshot().budget_cuts->money_loss == std::array<std::uint64_t, 2>{0, 0} &&
+            no_money.snapshot().colonies.colonies[0].resources.money == 0,
+            "Budget Cuts changed a zero-money colony");
+    const auto replay = session::record(input, {{}});
+    require(session::verify(replay) == replay.checkpoints.back() && replay.schema == 12,
+            "Budget Cuts did not survive deterministic session replay");
+}
 } // namespace
 
-int main() {
+int main(int argc, char** argv) {
     try {
+        if (argc == 2 && std::string_view(argv[1]) == "--budget-cuts-json") {
+            auto input = single(Effect::budget_cuts);
+            input.colonies.colonies[0].resources.money = 2;
+            input.colonies.colonies[1].resources.money = 1;
+            input.progress.deck = {101};
+            input.config.effects = {{101, Effect::budget_cuts}};
+            const auto trace = session::record(input, {{}});
+            std::cout << session::serialize_record(trace) << '\n';
+            return 0;
+        }
+        if (argc != 1) throw std::invalid_argument("unknown session test mode");
         end_to_end_and_work_barrier();
         mortality_ties_and_unpayable();
         unknowns_queues_and_privacy();
         validation_and_overflow();
         trace_replay();
+        budget_cuts_money_floor();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

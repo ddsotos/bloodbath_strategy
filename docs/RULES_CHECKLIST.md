@@ -103,5 +103,8 @@ box targets. P7/p8/p9 do not identify the multi-target box selector: TODO obtain
 authoritative clarification. That tail stops after population with boxes unchanged.
 Reinspection p2/p6/p7 does not establish completing an opponent's Accident
 Building choices after first zero. Keep that terminal boundary blocked pending
-authoritative clarification. Schema-11 assessments mark unresolved traces explicitly;
+authoritative clarification. Schema-12 assessments mark unresolved traces explicitly;
 absence of death in them is not evidence of survival (M1_TRACE_ASSESSMENT.md).
+Budget Cuts p11 is a conditional per-player money loss capped at available
+money (M1_BUDGET_CUTS_AUDIT.md). Development setup, catalog, and general trigger
+timing remain unverified.

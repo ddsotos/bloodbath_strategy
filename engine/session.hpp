@@ -9,7 +9,7 @@
 namespace bloodbath::session {
 inline constexpr const char* manifest_hash = BLOODBATH_SESSION_HASH;
 enum class Effect { work, trouble, hunger, accident, instruction_manual, unsupported, paperwork,
-                    glitch, robot_butler, robot_waiter, mining_robot };
+                    glitch, robot_butler, robot_waiter, mining_robot, budget_cuts };
 enum class Phase {
     ready, work_decision, blocked_unknown_card, blocked_event_queue,
     blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal,
@@ -61,6 +61,10 @@ struct HungerRecord {
     std::array<std::uint64_t, 2> population_gain{};
     bool operator==(const HungerRecord&) const = default;
 };
+struct BudgetCutsRecord {
+    std::array<std::uint64_t, 2> money_loss{};
+    bool operator==(const BudgetCutsRecord&) const = default;
+};
 struct RobotRecord {
     Effect effect = Effect::unsupported;
     std::array<population::Result, 2> losses;
@@ -90,6 +94,7 @@ struct Snapshot {
     std::optional<HungerRecord> pending_hunger;
     std::optional<AccidentRecord> hunger_losses;
     std::optional<RobotRecord> robot;
+    std::optional<BudgetCutsRecord> budget_cuts;
     std::optional<Effect> pending_robot;
     std::array<std::optional<std::vector<base_rules::Card>>, 2> loss_commitments;
     bool operator==(const Snapshot&) const = default;
@@ -139,7 +144,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 11;
+    std::uint32_t schema = 12;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

@@ -159,7 +159,7 @@ void terminal_and_replay() {
         input = fixture();
         input.config.seed = seed;
         const auto replay = ses::record(input, script());
-        require(replay.schema == 11 && replay == ses::record(input, script()) &&
+        require(replay.schema == 12 && replay == ses::record(input, script()) &&
                     ses::verify(replay) == replay.checkpoints.back(), "Butler replay diverged");
         auto changed = replay;
         changed.checkpoints.back().robot->completed = false;
