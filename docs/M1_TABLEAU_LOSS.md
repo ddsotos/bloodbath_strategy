@@ -57,5 +57,6 @@ Independent source/implementation review found no remaining P0/P1/P2 findings.
 No throughput claim is made for this state adapter; game/rollout benchmarking
 awaits the connected effect frames.
 
-Next steps are explicit Session choice frames for affected Events, with replay
-and observation coverage, followed by separately verified terminal semantics.
+The later [Accident frame](M1_ACCIDENT_CHOICES.md) connects this adapter to
+Session with replay and observation coverage. Other affected Events and
+separately verified terminal semantics remain open.
