@@ -74,6 +74,11 @@ See [RULES_CHECKLIST.md](RULES_CHECKLIST.md) for the unresolved gameplay items.
 
 ## Research conventions
 
+The [Accident choice frame](M1_ACCIDENT_CHOICES.md) connects the reviewed p2
+three-person loss to p7 payment and p5 Kale Farm metadata. Cross-player discard
+schedule remains a recorded caller convention; terminal cases with Buildings
+remain blocked before mutation. Session schema 5 records these choices/results.
+
 The later [nonterminal Kale Farm loss audit](M1_TABLEAU_LOSS.md) visually checks
 printed p7 population payment/Building transfer/discard/box loss and the p5
 absence of Kale Farm LOST effects in the pinned reproduction. Its adapter uses

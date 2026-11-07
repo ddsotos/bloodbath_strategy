@@ -42,6 +42,9 @@ target_link_libraries(replay_verify PRIVATE bloodbath)
 add_executable(session_demo tools/session_demo.cpp)
 target_link_libraries(session_demo PRIVATE bloodbath)
 if(BUILD_TESTING)
+  add_executable(accident_tests tests/accident_tests.cpp)
+  target_link_libraries(accident_tests PRIVATE bloodbath)
+  add_test(NAME accident_contracts COMMAND accident_tests)
   add_executable(tableau_loss_tests tests/tableau_loss_tests.cpp)
   target_link_libraries(tableau_loss_tests PRIVATE bloodbath)
   add_test(NAME tableau_loss_contracts COMMAND tableau_loss_tests)
@@ -72,6 +75,8 @@ if(BUILD_TESTING)
   add_test(NAME replay_roundtrip COMMAND replay_verify)
   find_package(Python3 QUIET COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
+    add_test(NAME accident_json COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_accident_record.py $<TARGET_FILE:accident_tests>)
     add_test(NAME session_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_session_record.py $<TARGET_FILE:session_demo>)
     add_test(NAME experiment_json COMMAND ${Python3_EXECUTABLE}

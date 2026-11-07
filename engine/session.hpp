@@ -14,7 +14,7 @@ enum class Phase {
     ready, work_decision, blocked_unknown_card, blocked_event_queue,
     blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal,
     paperwork_draw_order, paperwork_discard, blocked_shared_draw,
-    blocked_robot_deck, blocked_robot_loss, blocked_tableau_effect
+    blocked_robot_deck, blocked_robot_loss, blocked_tableau_effect, accident_choices
 };
 struct Config {
     std::uint64_t seed = 0;
@@ -48,6 +48,11 @@ struct PaperworkRecord {
     bool completed = false;
     bool operator==(const PaperworkRecord&) const = default;
 };
+struct AccidentRecord {
+    std::array<population::Result, 2> losses;
+    std::array<Player, 2> resolution_order{0, 1};
+    bool operator==(const AccidentRecord&) const = default;
+};
 struct Snapshot {
     base_rules::State colonies;
     progression::Snapshot progress;
@@ -62,6 +67,8 @@ struct Snapshot {
     std::array<std::optional<std::vector<base_rules::Card>>, 2> discard_commitments;
     std::array<std::optional<tableau::Choice>, 2> work_choices;
     std::optional<tableau::WorkRecord> tableau_work;
+    std::optional<AccidentRecord> accident;
+    std::array<std::optional<std::vector<base_rules::Card>>, 2> loss_commitments;
     bool operator==(const Snapshot&) const = default;
 };
 struct Observation {
@@ -71,6 +78,7 @@ struct Observation {
     std::optional<OfficialOutcome> official;
     std::size_t required_discards = 0;
     std::vector<tableau::Choice> work_options{};
+    std::vector<base_rules::Card> loss_options{};
     bool operator==(const Observation&) const = default;
 };
 class Session {
@@ -85,6 +93,8 @@ class Session {
     Phase prepare_paperwork(std::array<Player, 2> explicit_draw_schedule);
     void commit_discards(Player, std::vector<base_rules::Card>);
     PaperworkRecord resolve_paperwork(std::array<Player, 2> explicit_discard_schedule);
+    void commit_losses(Player, std::vector<base_rules::Card>);
+    AccidentRecord resolve_accident(std::array<Player, 2> explicit_schedule);
     Observation observe(Player) const;
     Snapshot snapshot() const { return state_; }
   private:
@@ -93,7 +103,7 @@ class Session {
     Snapshot state_;
 };
 enum class CommandKind { advance, commit, resolve_work, prepare_paperwork, commit_discards,
-                         resolve_paperwork, commit_choice };
+                         resolve_paperwork, commit_choice, commit_losses, resolve_accident };
 struct Command {
     CommandKind kind = CommandKind::advance;
     Player player = 0;
@@ -103,7 +113,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 4;
+    std::uint32_t schema = 5;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

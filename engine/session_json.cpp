@@ -94,6 +94,26 @@ void tableau_record(std::ostream& out, const std::optional<tableau::WorkRecord>&
     }
     out << "]}";
 }
+void accident(std::ostream& out, const std::optional<AccidentRecord>& value) {
+    if (!value) { out << "null"; return; }
+    out << "{\"resolution_order\":[" << static_cast<unsigned>(value->resolution_order[0]) << ','
+        << static_cast<unsigned>(value->resolution_order[1]) << "],\"losses\":[";
+    for (Player p = 0; p < 2; ++p) {
+        if (p) out << ',';
+        const auto& loss = value->losses[p];
+        out << "{\"requested_loss\":" << loss.requested_loss << ",\"paid\":" << loss.paid
+            << ",\"unpaid_shortfall\":" << loss.unpaid_shortfall << ",\"lost\":[";
+        bool first = true;
+        for (const auto& building : loss.lost) {
+            if (!first) out << ',';
+            first = false;
+            out << "{\"card\":" << building.card << ",\"transferred_people\":" << building.transferred_people
+                << ",\"discarded_boxes\":" << building.discarded_boxes << '}';
+        }
+        out << "]}";
+    }
+    out << "]}";
+}
 void snapshot(std::ostream& out, const Snapshot& value, const Config& config) {
     out << "{\"colonies\":"; colonies(out, value.colonies, config.building_catalog);
     out << ",\"progress\":"; progress(out, value.progress);
@@ -133,7 +153,14 @@ void snapshot(std::ostream& out, const Snapshot& value, const Config& config) {
         if (p) out << ',';
         if (value.work_choices[p]) choice(out, *value.work_choices[p]); else out << "null";
     }
-    out << "],\"tableau_work\":"; tableau_record(out, value.tableau_work); out << '}';
+    out << "],\"tableau_work\":"; tableau_record(out, value.tableau_work);
+    out << ",\"accident\":"; accident(out, value.accident);
+    out << ",\"loss_commitments\":[";
+    for (Player p = 0; p < 2; ++p) {
+        if (p) out << ',';
+        if (value.loss_commitments[p]) cards(out, *value.loss_commitments[p]); else out << "null";
+    }
+    out << "]}";
 }
 } // namespace
 std::string serialize_record(const Replay& replay) {
@@ -141,9 +168,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":4,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":5,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v4\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v5\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""

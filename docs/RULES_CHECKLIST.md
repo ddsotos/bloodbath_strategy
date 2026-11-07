@@ -81,3 +81,8 @@ The single-colony nonterminal Kale Farm adapter is now implemented separately
 (M1_TABLEAU_LOSS.md), using reviewed p7 transfers/discard/box loss and p5 absence
 of LOST. Event dispatch, cross-player priority and terminal cases remain open;
 the full population checklist item is therefore still incomplete.
+
+Nonterminal Accident now has a Kale Farm choice frame (M1_ACCIDENT_CHOICES.md)
+using the p2 loss and p7 payment rules. Cross-player schedule is an explicit
+convention; terminal interruption, Hunger/Robots with Buildings and general
+LOST effects remain unresolved. No full checklist item is marked complete.

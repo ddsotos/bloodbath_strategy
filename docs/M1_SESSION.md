@@ -110,9 +110,11 @@ Paperwork extends Session Replay/JSON to schema 2 and appends discard/frame
 data; schema 1 session records reject. M0 formats remain unchanged.
 The Robot extension advances the current Session schema to 3, adding the
 private supplied Robot source and consumed index, and rejects older schemas.
-The current reviewed Tableau extension uses schema 4: opt-in definitions,
+The reviewed Tableau extension introduced schema 4: opt-in definitions,
 boxes, rich Work choices and effect records. Older session schemas reject;
 M0 formats remain unchanged.
+The current [Accident extension](M1_ACCIDENT_CHOICES.md) uses schema 5, adding
+nonterminal Kale Farm loss commitments and payment/transfer/box records.
 
 ## Run and validate
 

@@ -41,6 +41,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Nonterminal Kale Farm population loss now has an atomic adapter to shared
   Building state with explicit choices and transfer/box records. Session effect
   frames and terminal cases remain pending. See M1_TABLEAU_LOSS.md.
+  Accident now connects nonterminal Kale Farm loss choices with private
+  commitments, explicit resolution order and schema-5 replay/JSON records.
+  Other affected Events/Robots and terminal cases remain open (M1_ACCIDENT_CHOICES.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

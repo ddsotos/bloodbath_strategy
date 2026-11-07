@@ -41,7 +41,18 @@ Replay/JSON schema3 includes private ordered_robots and next_robot index.
 Explicit tableau opt-in supports reviewed KaleFarm-only inplay context.
 Caller scope now excludes unmodeled external effects;known KaleFarm triggers run.
 Schema4 records Building catalog,opt-in,publicboxes,richWorkchoices/effectrecords.
-Population-changing Event/Robot paths block before mutation if any Buildings
+Hunger/Robot paths block before mutation if any Buildings
 exist;no silent use of no-Building formulas. InstructionManual counts printed
 people. Paperwork has no KaleFarm interaction;its certified draw frame supports it.
 Session score totals capped at signed64,including new printed people onBuild.
+Schema5 adds Accident choices phase14,commit_losses command7,resolve_accident8.
+p2 Accident loses3people;reviewed KaleFarm transfers/discards follow p7.
+With Buildings,preflight both totals>3;otherwise blocked_population_payment
+before any payment,Building loss,death or official result.
+Both bases>=3:auto-pay without decision;fixed internal order0,1 has no discards.
+Otherwise one simultaneous loss-choice frame;full ordered choices certified on
+copies,hidden until both locked;explicit resolution order is caller convention.
+Base-sufficient player commits empty;no voluntary discard;active Progress waits.
+Final Accident record retains per-player payment and ordered transfer/boxloss.
+Pending commitments audit-only;observation offers own public Building choices.
+No claim official cross-player priority,terminal ordering or full Event catalog.
