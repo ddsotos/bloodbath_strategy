@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/base_work.hpp"
+#include "engine/population.hpp"
 
 namespace bloodbath::tableau {
 inline constexpr const char* manifest_hash = BLOODBATH_TABLEAU_HASH;
@@ -33,6 +34,11 @@ std::uint64_t total_people(const base_rules::Colony&, const Catalog&);
 // Pure choice queries require an already-validated reviewed context.
 std::vector<Choice> options(const base_rules::State&, const Catalog&, Player);
 void validate_choice(const base_rules::State&, const Catalog&, Player, const Choice&);
+// Atomic single-colony nonterminal loss. The caller supplies the complete ordered
+// Building choices; incomplete/excess choices and total <= loss reject unchanged.
+population::Result lose_people(base_rules::State&, const Catalog&, Player, std::uint64_t amount,
+                               const std::vector<Card>& chosen_buildings, EventClock,
+                               std::string cause, base_rules::EffectScope);
 // Both choices must already be locked by the caller. Explicit order remains a convention.
 WorkRecord resolve(base_rules::State&, const Catalog&, const std::array<Choice, 2>&,
                    std::array<Player, 2> schedule, std::uint64_t seed, base_rules::EffectScope);

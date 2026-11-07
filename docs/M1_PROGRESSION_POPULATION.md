@@ -60,6 +60,8 @@ and rejected operations leave the deck state unchanged.
 clock, amount and cause. Caller-supplied Building metadata includes printed
 population, boxes and whether LOST effects are verified absent. This is not a
 card definition loader or a full state adapter to the base Work module.
+The later [Kale Farm adapter](M1_TABLEAU_LOSS.md) connects these primitives to
+shared Building state for strictly nonterminal losses only.
 
 If base population covers the amount, pay the full amount once. Zero base is
 not death while printed Building population remains. If base is insufficient

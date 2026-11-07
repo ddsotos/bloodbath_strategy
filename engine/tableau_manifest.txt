@@ -1,4 +1,4 @@
-reviewed-tableau-v1; conditional Kale-Farm-only context,not a full card catalog
+reviewed-tableau-v2; conditional Kale-Farm-only context,not a full card catalog
 Pinned publisher-authored English reproduction SHA256:
 63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
 p4 BUILD:pay printedcost,put hand card inplay,thenPLAY effects.
@@ -17,3 +17,12 @@ Both choices locked before scheduled apply;known affordable BUILD options and
 all canonical two-box allocations depend only on own hand and public state.
 Raw draw resolver certifies living state and no draw-specific modifiers;legacy
 no-Building draw/Work entry points retain stricter guards.
+p7 nonterminal forced loss:pay base;only if insufficient choose ownedBuilding,
+transfer printedpeople,discard card and allboxes;repeat until full loss payable.
+p5 KaleFarm has no LOST effect;losing it does not trigger PLAY/FARM.
+lose_people is atomic single-colony adapter with complete caller-ordered choices.
+Require total>requestedloss;terminal/interruption cases reject without mutation.
+Lost cards append sharedBuildingDiscard in caller-selected order;cross-player
+ordering remains caller convention,not verified official priority.
+Result retains requested/paid/lost transfers/boxes;no shadow or official outcome.
+Tableau hash includes base and progression/population manifest hashes.

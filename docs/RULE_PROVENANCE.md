@@ -74,6 +74,12 @@ See [RULES_CHECKLIST.md](RULES_CHECKLIST.md) for the unresolved gameplay items.
 
 ## Research conventions
 
+The later [nonterminal Kale Farm loss audit](M1_TABLEAU_LOSS.md) visually checks
+printed p7 population payment/Building transfer/discard/box loss and the p5
+absence of Kale Farm LOST effects in the pinned reproduction. Its adapter uses
+explicit caller-selected order and rejects terminal cases. This extends only
+the reviewed subset; it does not resolve complete card coverage or edition match.
+
 Event-clock indexing, synthetic toy populations and transitions, a bounded toy
 horizon, post-death fixed policy, and shadow continuation are research fixture
 conventions. They do not establish official rules. Each executable fixture must

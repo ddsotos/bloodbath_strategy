@@ -38,6 +38,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   own Farm triggers, supported BUILD/RESTOCK choices/boxes, printed population
   scoring and schema-4 rich traces. Unknown Buildings reject and affected
   Events block. See M1_TABLEAU.md; full catalog remains open.
+  Nonterminal Kale Farm population loss now has an atomic adapter to shared
+  Building state with explicit choices and transfer/box records. Session effect
+  frames and terminal cases remain pending. See M1_TABLEAU_LOSS.md.
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 
