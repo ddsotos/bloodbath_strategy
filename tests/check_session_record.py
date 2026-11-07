@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 record = json.loads(subprocess.check_output([sys.argv[1]], text=True))
-assert record["schema_version"] == 7
+assert record["schema_version"] == 8
 assert record["full_game"] is False
 assert record["scope"] == "conditional-no-buildings-no-modifiers"
 for name in ("session_hash", "base_rules_hash", "progression_population_hash"):
@@ -40,7 +40,7 @@ assert final["paperwork"] is None
 assert final["discard_commitments"] == [None, None]
 
 tableau = json.loads(subprocess.check_output([sys.argv[1], "--tableau"], text=True))
-assert tableau["schema_version"] == 7 and tableau["full_game"] is False
+assert tableau["schema_version"] == 8 and tableau["full_game"] is False
 assert tableau["scope"] == "conditional-reviewed-tableau-no-external-modifiers"
 assert len(tableau["commands"]) == len(tableau["checkpoints"]) == 17
 assert tableau["initial"]["config"]["tableau_enabled"] is True
@@ -75,7 +75,7 @@ assert [len(p["hand"]) for p in final["colonies"]["players"]] == [2, 6]
 assert final["work_choices"] == [None, None]
 
 robots = json.loads(subprocess.check_output([sys.argv[1], "--robots"], text=True))
-assert robots["schema_version"] == 7 and robots["full_game"] is False
+assert robots["schema_version"] == 8 and robots["full_game"] is False
 assert len(robots["commands"]) == len(robots["checkpoints"]) == 7
 assert robots["initial"]["config"]["ordered_robots"] == [108]
 for point in robots["checkpoints"]:
@@ -100,7 +100,7 @@ assert robots["final"]["progress"]["clock"] == {"absolute_event": 4, "cycle": 0,
 assert robots["final"]["first_deaths"] == [None, None]
 
 paperwork = json.loads(subprocess.check_output([sys.argv[1], "--paperwork"], text=True))
-assert paperwork["schema_version"] == 7 and paperwork["full_game"] is False
+assert paperwork["schema_version"] == 8 and paperwork["full_game"] is False
 assert len(paperwork["commands"]) == len(paperwork["checkpoints"]) == 10
 for point in paperwork["checkpoints"]:
     colony = point["colonies"]

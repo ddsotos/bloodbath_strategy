@@ -211,7 +211,7 @@ void replay_contracts() {
         auto input = fixture();
         input.config.seed = seed;
         const auto replay = ses::record(input, script());
-        require(replay.schema == 7 && replay == ses::record(input, script()) &&
+        require(replay.schema == 8 && replay == ses::record(input, script()) &&
                     ses::verify(replay) == replay.checkpoints.back(), "Hunger choice replay diverged");
         auto changed = replay;
         changed.checkpoints[0].pending_hunger->required_food[0]--;

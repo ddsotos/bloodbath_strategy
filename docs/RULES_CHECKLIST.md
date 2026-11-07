@@ -92,3 +92,6 @@ Its Building-loss choices and terminal cases remain blocked; full coverage is op
 The subsequent M1_HUNGER_CHOICES.md slice adds nonterminal Kale Farm losses
 while preserving original p6 food requirements. Terminal/general LOST handling
 and full card coverage remain open; caller schedule is a convention.
+M1_ROBOT_TABLEAU.md extends p7/p9 Waiter/Mining to base-funded nonterminal Kale
+contexts. Box choices, Robot Building-loss frames, other Buildings and terminal
+interruption remain pending; this does not complete the Robot catalog.

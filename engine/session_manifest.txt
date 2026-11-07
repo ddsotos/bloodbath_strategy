@@ -41,7 +41,7 @@ Replay/JSON schema3 includes private ordered_robots and next_robot index.
 Explicit tableau opt-in supports reviewed KaleFarm-only inplay context.
 Caller scope now excludes unmodeled external effects;known KaleFarm triggers run.
 Schema4 records Building catalog,opt-in,publicboxes,richWorkchoices/effectrecords.
-Robot paths block before mutation if any Buildings
+RobotButler paths block before mutation if any Buildings
 exist;no silent use of no-Building formulas. InstructionManual counts printed
 people. Paperwork has no KaleFarm interaction;its certified draw frame supports it.
 Session score totals capped at signed64,including new printed people onBuild.
@@ -74,3 +74,12 @@ as caller convention,not verified official priority. Reuse fixed initial food
 payment/shortfall after Building losses;never recompute against smaller tableau.
 Completed frame stores Hunger amounts and population transfer/boxloss records,
 clears pending/commitments and finishes active. No post-loss PLAY/FARM trigger.
+Schema8 adds Robot effect tag,per-player population payment,foodloss/moneygain.
+p7 all players pay population before tail;p9 Waiter4thenmin(2,food),Mining6then
+money for listedMines only;KaleFarm is not a Mine and triggers no Robot effect.
+Allow reviewed KaleFarm Waiter/Mining only when both base>=loss AND total>loss;
+otherwise blocked_robot_loss before ALL population/tail mutation,no death.
+Base can reach0 while retained printedpopulation keeps colony alive.
+Butler with any Buildings remains blocked_tableau_effect(box choice pending).
+Robot Building-loss/terminal cases and non-Kale definitions remain unsupported.
+RobotRecord clears on each known Robot reveal;automatic handling adds no decision.

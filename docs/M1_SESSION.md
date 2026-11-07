@@ -117,8 +117,10 @@ The [Accident extension](M1_ACCIDENT_CHOICES.md) introduced schema 5, adding
 nonterminal Kale Farm loss commitments and payment/transfer/box records.
 The [Hunger extension](M1_HUNGER.md) introduced schema 6, adding food and
 population payment/gain audit records.
-The current [Hunger choices](M1_HUNGER_CHOICES.md) use schema 7, adding frozen
+The [Hunger choices](M1_HUNGER_CHOICES.md) introduced schema 7, adding frozen
 pending requirements and Building transfer/box-loss records.
+The current [Robot Tableau](M1_ROBOT_TABLEAU.md) extension uses schema 8,
+adding Robot population payment and tail resource records.
 
 ## Run and validate
 

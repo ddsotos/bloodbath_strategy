@@ -27,7 +27,7 @@ stops explicitly. The [Glitch/Robot extension](docs/M1_GLITCH_ROBOTS.md) adds a
 private supplied Robot source and three nonterminal Robot handlers. Run
 `session_demo --robots`. [Reviewed Kale Farm Tableau](docs/M1_TABLEAU.md) adds
 opt-in BUILD/RESTOCK, PLAY/FARM effects and printed population scoring. Run
-`session_demo --tableau`; current Session Replay/JSON use schema 7.
+`session_demo --tableau`; current Session Replay/JSON use schema 8.
 
 A [nonterminal Kale Farm loss adapter](docs/M1_TABLEAU_LOSS.md) now connects
 explicit Building-loss choices to shared cards and boxes atomically. Session
@@ -36,6 +36,8 @@ Other population-changing effects with Buildings await dedicated choice frames.
 The [Hunger payment extension](docs/M1_HUNGER.md) supports food payment and
 base-funded nonterminal shortages. [Hunger Building choices](docs/M1_HUNGER_CHOICES.md)
 also support shortages requiring Kale Farm losses with frozen food requirements.
+[Waiter/Mining Robot payments](docs/M1_ROBOT_TABLEAU.md) now support Kale Farms
+when base population covers the loss without death; Butler choices remain open.
 
 ## Build and verify
 
