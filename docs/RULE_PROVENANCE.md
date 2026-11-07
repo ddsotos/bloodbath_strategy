@@ -74,6 +74,11 @@ See [RULES_CHECKLIST.md](RULES_CHECKLIST.md) for the unresolved gameplay items.
 
 ## Research conventions
 
+The [trace assessment source note](M1_TRACE_ASSESSMENT.md) records reinspection
+of p2/p6/p7: exact-zero failure is established, but post-first-zero completion
+of another Accident player's Building choices is not. No rule extension was
+made at that boundary. Trace dispositions are reporting conventions only.
+
 The [Butler audit](M1_BUTLER.md) visually verifies p7/p9 population-before-box,
 Building-box disposal and absent-box failure, with p5 Kale metadata. Rechecking
 p7/p8/p9 did not establish a multi-target box selector; those tails remain blocked.

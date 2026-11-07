@@ -2,9 +2,26 @@
 
 #include <locale>
 #include <sstream>
+#include <stdexcept>
 
 namespace bloodbath::session {
 namespace {
+const char* status_name(TraceStatus status) {
+    switch (status) {
+    case TraceStatus::in_progress: return "in_progress";
+    case TraceStatus::awaiting_input: return "awaiting_input";
+    case TraceStatus::blocked_rule: return "blocked_rule";
+    case TraceStatus::conditional_terminal: return "conditional_terminal";
+    }
+    throw std::invalid_argument("invalid trace assessment status");
+}
+void assessment(std::ostream& out, const Snapshot& value) {
+    const auto result = assess(value);
+    out << "{\"status\":\"" << status_name(result.status) << "\",\"reason\":";
+    if (result.reason) out << '"' << *result.reason << '"'; else out << "null";
+    out << ",\"terminal_resolved\":" << (result.terminal_resolved ? "true" : "false")
+        << ",\"has_conditional_outcome\":" << (result.has_conditional_outcome ? "true" : "false") << '}';
+}
 template<class T> void cards(std::ostream& out, const std::vector<T>& values) {
     out << '[';
     bool first = true;
@@ -143,6 +160,7 @@ void hunger(std::ostream& out, const std::optional<HungerRecord>& value) {
 }
 void snapshot(std::ostream& out, const Snapshot& value, const Config& config) {
     out << "{\"colonies\":"; colonies(out, value.colonies, config.building_catalog);
+    out << ",\"trace_assessment\":"; assessment(out, value);
     out << ",\"progress\":"; progress(out, value.progress);
     out << ",\"phase\":" << static_cast<unsigned>(value.phase)
         << ",\"next_event\":" << value.next_event << ",\"next_robot\":" << value.next_robot
@@ -201,9 +219,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":10,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":11,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v10\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v11\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""
@@ -248,6 +266,7 @@ std::string serialize_record(const Replay& replay) {
         snapshot(out, point, config);
     }
     out << "],\"final\":"; snapshot(out, final, config);
+    out << ",\"trace_assessment\":"; assessment(out, final);
     out << ",\"shadow\":null,\"synthetic_score_adjustments\":[0,0]}";
     return out.str();
 }

@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 trace = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert trace["schema_version"] == 10 and trace["full_game"] is False
-assert trace["policy_version"] == "caller-commands-v10"
+assert trace["schema_version"] == 11 and trace["full_game"] is False
+assert trace["policy_version"] == "caller-commands-v11"
 assert [c["kind"] for c in trace["commands"]] == [0, 7, 7, 10]
 points = trace["checkpoints"]
 for point in points[:3]:
@@ -32,4 +32,4 @@ for p, card, boxes in [(0, 1, 7), (1, 5, 8)]:
         lost=[dict(card=card, transferred_people=5, discarded_boxes=boxes)])
 assert final["first_deaths"] == [None, None]
 assert final["conditional_official_outcome"] is None and trace["shadow"] is None
-print("Robot choice schema-10 JSON audit passed")
+print("Robot choice schema-11 JSON audit passed")

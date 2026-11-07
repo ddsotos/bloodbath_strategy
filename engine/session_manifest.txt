@@ -103,3 +103,11 @@ Source p7/p8/p9 does not specify box target selector;TODO verify before implemen
 multi-target choices;never assume owner choice,random selection or opponent choice.
 Pending effect retained on partial block;no artificial decision for unresolved rule.
 Completed Robot records have completedtrue,box_loss optional per player;no death.
+Schema11 adds derived trace_assessment to audit checkpoints/final/top-level.
+Statuses in_progress,awaiting_input,blocked_rule,conditional_terminal distinguish
+unfinished/interactive/unsupported traces from conditional resolved outcomes.
+Fixed reason tags identify rule/source boundaries;null death is not survival.
+Only official_terminal with stored conditional outcome sets terminal_resolved.
+This does not certify full-game fidelity or settle terminal interruption rules.
+Source audit p6/p7 still does not establish completing another Accident player's
+Building choices after first zero;retain mixed terminal guard,TODO clarification.

@@ -59,6 +59,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Butler population loss and zero/single-target box tails are supported with
   schema-10 partial/completed records. Multiple boxed Buildings stop pending
   authoritative selector clarification; terminal cases remain open (M1_BUTLER.md).
+  Schema-11 trace assessments now report waiting/blocked/in-progress/conditional
+  terminal states with explicit reason tags. Accident terminal interruption with
+  Building choices remains unverified (M1_TRACE_ASSESSMENT.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 
