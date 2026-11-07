@@ -98,3 +98,6 @@ interruption remain pending; this does not complete the Robot catalog.
 M1_ROBOT_CHOICES.md now connects nonterminal Kale Farm losses for Waiter/Mining
 under the p7 all-population-before-tail barrier. Other Buildings, Butler boxes
 and terminal interruption remain pending; ordering protocol is a caller convention.
+M1_BUTLER.md adds nonterminal Butler population payment and forced zero/single
+box targets. P7/p8/p9 do not identify the multi-target box selector: TODO obtain
+authoritative clarification. That tail stops after population with boxes unchanged.

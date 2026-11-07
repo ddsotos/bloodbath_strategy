@@ -37,6 +37,8 @@ active Progress finishes. Both populations remain positive; there are no death,
 official-terminal or shadow changes. Butler with any Building, unknown LOST,
 other Buildings, terminal interruption and full setup/catalog remain outside
 scope. A blocked trace is unresolved, not a completed survival result.
+The later [Butler extension](M1_BUTLER.md) supports population loss and box tails
+with zero or one remaining target; ambiguous multi-target box selection still stops.
 
 ## Records and validation
 

@@ -25,6 +25,40 @@ void robot_tail(base_rules::State& state, RobotRecord& result) {
 bool robot_effect(Effect effect) {
     return effect == Effect::robot_butler || effect == Effect::robot_waiter || effect == Effect::mining_robot;
 }
+std::vector<base_rules::Card> box_targets(const base_rules::Colony& colony) {
+    std::vector<base_rules::Card> result;
+    for (const auto card : colony.buildings) {
+        const auto found = colony.boxes.find(card);
+        if (found != colony.boxes.end() && found->second > 0) result.push_back(card);
+    }
+    return result;
+}
+void complete_robot(Snapshot& next, progression::Deck& deck, RobotRecord result) {
+    robot_tail(next.colonies, result); // All players' population payments must precede this call.
+    next.loss_commitments = {};
+    if (result.effect == Effect::robot_butler) {
+        const auto first = box_targets(next.colonies.colonies[0]);
+        const auto second = box_targets(next.colonies.colonies[1]);
+        if (first.size() > 1 || second.size() > 1) {
+            result.completed = false;
+            next.robot = std::move(result);
+            next.pending_robot = Effect::robot_butler;
+            next.phase = Phase::blocked_tableau_effect; // Box target selector is not established by the source.
+            return;
+        }
+        const std::array<std::vector<base_rules::Card>, 2> targets{first, second};
+        for (Player p = 0; p < 2; ++p)
+            if (!targets[p].empty()) {
+                const auto card = targets[p][0];
+                --next.colonies.colonies[p].boxes.at(card);
+                result.box_loss[p] = card;
+            }
+    }
+    next.robot = std::move(result);
+    next.pending_robot.reset();
+    next.phase = Phase::ready;
+    deck.finish_active();
+}
 void validate(const Input& input) {
     // Bare context stays strict; only explicit reviewed Tableau rules allow Buildings.
     if (input.config.tableau_enabled)
@@ -127,14 +161,6 @@ Phase Session::advance() {
     }
     const auto revealed_effect = effect_of(config_, reveal->card);
     const bool has_buildings = !next.colonies.colonies[0].buildings.empty() || !next.colonies.colonies[1].buildings.empty();
-    if (has_buildings && revealed_effect == Effect::robot_butler) {
-        next.robot.reset();
-        next.pending_robot.reset();
-        next.phase = Phase::blocked_tableau_effect;
-        next.progress = deck.snapshot();
-        state_ = std::move(next);
-        return state_.phase;
-    }
     switch (revealed_effect) {
     case Effect::work:
         deck.record_decision(); // One simultaneous Work decision point, not two reveals.
@@ -272,9 +298,7 @@ Phase Session::advance() {
         for (Player p = 0; p < 2; ++p)
             result.losses[p] = tableau::lose_people(next.colonies, config_.building_catalog, p,
                 amount, {}, reveal->clock, cause, config_.scope);
-        robot_tail(next.colonies, result); // Both population payments completed first.
-        next.robot = std::move(result);
-        deck.finish_active();
+        complete_robot(next, deck, std::move(result));
         break;
     }
     case Effect::unsupported:
@@ -434,14 +458,10 @@ RobotRecord Session::resolve_robot(std::array<Player, 2> schedule) {
         result.losses[p] = tableau::lose_people(next.colonies, config_.building_catalog, p,
             robot_amount(result.effect), *next.loss_commitments[p], next.progress.clock,
             robot_cause(result.effect), config_.scope);
-    robot_tail(next.colonies, result);
     progression::Deck deck(next.progress, config_.seed);
-    deck.finish_active();
+    complete_robot(next, deck, result);
     next.progress = deck.snapshot();
-    next.robot = result;
-    next.pending_robot.reset();
-    next.loss_commitments = {};
-    next.phase = Phase::ready;
+    result = *next.robot;
     state_ = std::move(next);
     return result;
 }
@@ -510,7 +530,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{9, manifest_hash, std::move(input), commands, {}};
+    Replay replay{10, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -518,7 +538,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 9 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 10 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

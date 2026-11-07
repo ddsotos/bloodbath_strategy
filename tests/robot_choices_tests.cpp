@@ -188,17 +188,13 @@ void terminal_and_butler_guards() {
                     "terminal preflight mutated another player's choice/tail");
         }
     }
-    auto input = fixture(Effect::robot_butler);
-    ses::Session game(input);
-    require(game.advance() == Phase::blocked_tableau_effect && game.snapshot().colonies == input.colonies &&
-                !game.snapshot().pending_robot, "Butler inferred unimplemented box choices");
 }
 void replay_contracts() {
     for (std::uint64_t seed = 0; seed < 16; ++seed) {
         auto input = fixture();
         input.config.seed = seed;
         const auto replay = ses::record(input, script());
-        require(replay.schema == 9 && replay == ses::record(input, script()) &&
+        require(replay.schema == 10 && replay == ses::record(input, script()) &&
                     ses::verify(replay) == replay.checkpoints.back(), "Robot choice replay diverged");
         auto changed = replay;
         changed.checkpoints[0].pending_robot = Effect::mining_robot;

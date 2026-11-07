@@ -131,7 +131,7 @@ void preflight_and_unsupported_boundaries() {
         require(game.advance() == Phase::blocked_robot_loss && game.snapshot().colonies == mixed.colonies,
                 "bare exact-total loss partly paid a mixed Tableau Robot");
     }
-    for (const auto effect : {Effect::robot_butler, Effect::unsupported}) {
+    for (const auto effect : {Effect::unsupported}) {
         auto input = fixture();
         input.progress.deck = {100};
         input.config.effects[100] = effect;
@@ -173,7 +173,7 @@ void repeated_robot_and_replay() {
     for (std::uint64_t seed = 0; seed < 16; ++seed) {
         input.config.seed = seed;
         const auto replay = ses::record(input, {{}, {}});
-        require(replay.schema == 9 && replay == ses::record(input, {{}, {}}) &&
+        require(replay.schema == 10 && replay == ses::record(input, {{}, {}}) &&
                     ses::verify(replay) == replay.checkpoints.back(), "Robot Tableau replay diverged");
         auto changed = replay;
         changed.checkpoints[0].robot->food_loss[0]++;
