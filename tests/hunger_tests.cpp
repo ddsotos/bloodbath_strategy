@@ -156,7 +156,7 @@ void replay_contracts() {
         auto input = json_fixture();
         input.config.seed = seed;
         const auto trace = ses::record(input, {{}, {}});
-        require(trace.schema == 7 && trace == ses::record(input, {{}, {}}) &&
+        require(trace.schema == 8 && trace == ses::record(input, {{}, {}}) &&
                     ses::verify(trace) == trace.checkpoints.back(), "Hunger replay not reproducible");
         auto changed = trace;
         changed.checkpoints[0].hunger->spent_food[0]++;

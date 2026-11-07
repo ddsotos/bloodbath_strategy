@@ -94,13 +94,11 @@ void tableau_record(std::ostream& out, const std::optional<tableau::WorkRecord>&
     }
     out << "]}";
 }
-void accident(std::ostream& out, const std::optional<AccidentRecord>& value) {
-    if (!value) { out << "null"; return; }
-    out << "{\"resolution_order\":[" << static_cast<unsigned>(value->resolution_order[0]) << ','
-        << static_cast<unsigned>(value->resolution_order[1]) << "],\"losses\":[";
+void losses(std::ostream& out, const std::array<population::Result, 2>& values) {
+    out << '[';
     for (Player p = 0; p < 2; ++p) {
         if (p) out << ',';
-        const auto& loss = value->losses[p];
+        const auto& loss = values[p];
         out << "{\"requested_loss\":" << loss.requested_loss << ",\"paid\":" << loss.paid
             << ",\"unpaid_shortfall\":" << loss.unpaid_shortfall << ",\"lost\":[";
         bool first = true;
@@ -112,7 +110,21 @@ void accident(std::ostream& out, const std::optional<AccidentRecord>& value) {
         }
         out << "]}";
     }
-    out << "]}";
+    out << ']';
+}
+void accident(std::ostream& out, const std::optional<AccidentRecord>& value) {
+    if (!value) { out << "null"; return; }
+    out << "{\"resolution_order\":[" << static_cast<unsigned>(value->resolution_order[0]) << ','
+        << static_cast<unsigned>(value->resolution_order[1]) << "],\"losses\":";
+    losses(out, value->losses);
+    out << '}';
+}
+void robot(std::ostream& out, const std::optional<RobotRecord>& value) {
+    if (!value) { out << "null"; return; }
+    out << "{\"effect\":" << static_cast<unsigned>(value->effect) << ",\"losses\":";
+    losses(out, value->losses);
+    out << ",\"food_loss\":[" << value->food_loss[0] << ',' << value->food_loss[1]
+        << "],\"money_gain\":[" << value->money_gain[0] << ',' << value->money_gain[1] << "]}";
 }
 void hunger(std::ostream& out, const std::optional<HungerRecord>& value) {
     if (!value) { out << "null"; return; }
@@ -166,6 +178,7 @@ void snapshot(std::ostream& out, const Snapshot& value, const Config& config) {
     out << ",\"pending_hunger\":"; hunger(out, value.pending_hunger);
     out << ",\"hunger_losses\":"; accident(out, value.hunger_losses);
     out << ",\"accident\":"; accident(out, value.accident);
+    out << ",\"robot\":"; robot(out, value.robot);
     out << ",\"loss_commitments\":[";
     for (Player p = 0; p < 2; ++p) {
         if (p) out << ',';
@@ -179,9 +192,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":7,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":8,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v7\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v8\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""

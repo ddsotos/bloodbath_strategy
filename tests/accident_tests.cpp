@@ -216,7 +216,7 @@ void replay_contracts() {
         auto input = fixture();
         input.config.seed = seed;
         const auto trace = ses::record(input, commands);
-        require(trace.schema == 7 && trace == ses::record(input, commands) &&
+        require(trace.schema == 8 && trace == ses::record(input, commands) &&
                     ses::verify(trace) == trace.checkpoints.back(), "Accident replay not deterministic");
         auto changed = trace;
         changed.commands[1].cards = {0};

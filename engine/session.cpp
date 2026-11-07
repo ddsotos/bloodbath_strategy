@@ -112,7 +112,8 @@ Phase Session::advance() {
     }
     const auto revealed_effect = effect_of(config_, reveal->card);
     const bool has_buildings = !next.colonies.colonies[0].buildings.empty() || !next.colonies.colonies[1].buildings.empty();
-    if (has_buildings && robot_effect(revealed_effect)) {
+    if (has_buildings && revealed_effect == Effect::robot_butler) {
+        next.robot.reset();
         next.phase = Phase::blocked_tableau_effect;
         next.progress = deck.snapshot();
         state_ = std::move(next);
@@ -228,11 +229,13 @@ Phase Session::advance() {
     case Effect::robot_butler:
     case Effect::robot_waiter:
     case Effect::mining_robot: {
+        next.robot.reset();
         const auto effect = effect_of(config_, reveal->card);
         const std::uint64_t amount = effect == Effect::mining_robot ? 6 : 4;
         bool possible_failure = false;
         for (const auto& colony : next.colonies.colonies)
-            possible_failure = possible_failure || colony.resources.people <= amount;
+            possible_failure = possible_failure || colony.resources.people < amount ||
+                tableau::total_people(colony, config_.building_catalog) <= amount;
         if (possible_failure) {
             // Do not settle whether post-loss Robot instructions run after first death.
             next.phase = Phase::blocked_robot_loss;
@@ -240,15 +243,19 @@ Phase Session::advance() {
         }
         const std::string cause = effect == Effect::mining_robot ? "Mining Robot" :
             (effect == Effect::robot_butler ? "Robot Butler" : "Robot Waiter");
-        for (Player p = 0; p < 2; ++p) {
-            population::Loss loss({next.colonies.colonies[p].resources.people, {}, {}}, p,
-                                  amount, reveal->clock, cause);
-            next.colonies.colonies[p].resources.people = loss.snapshot().base_people;
-        }
-        // No Buildings => no boxes for Butler, no Mine bonuses for Mining Robot.
+        RobotRecord result{};
+        result.effect = effect;
+        for (Player p = 0; p < 2; ++p)
+            result.losses[p] = tableau::lose_people(next.colonies, config_.building_catalog, p,
+                amount, {}, reveal->clock, cause, config_.scope);
+        // Butler is bare-only. Reviewed Kale Farms are not Mines and have no Robot trigger.
         if (effect == Effect::robot_waiter)
-            for (auto& colony : next.colonies.colonies)
-                colony.resources.food -= std::min(std::uint64_t{2}, colony.resources.food);
+            for (Player p = 0; p < 2; ++p) {
+                auto& colony = next.colonies.colonies[p];
+                result.food_loss[p] = std::min(std::uint64_t{2}, colony.resources.food);
+                colony.resources.food -= result.food_loss[p];
+            }
+        next.robot = std::move(result);
         deck.finish_active();
         break;
     }
@@ -456,7 +463,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{7, manifest_hash, std::move(input), commands, {}};
+    Replay replay{8, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -464,7 +471,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 7 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 8 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

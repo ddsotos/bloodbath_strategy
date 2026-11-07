@@ -42,6 +42,9 @@ target_link_libraries(replay_verify PRIVATE bloodbath)
 add_executable(session_demo tools/session_demo.cpp)
 target_link_libraries(session_demo PRIVATE bloodbath)
 if(BUILD_TESTING)
+  add_executable(robot_tableau_tests tests/robot_tableau_tests.cpp)
+  target_link_libraries(robot_tableau_tests PRIVATE bloodbath)
+  add_test(NAME robot_tableau_contracts COMMAND robot_tableau_tests)
   add_executable(hunger_choices_tests tests/hunger_choices_tests.cpp)
   target_link_libraries(hunger_choices_tests PRIVATE bloodbath)
   add_test(NAME hunger_choices_contracts COMMAND hunger_choices_tests)
@@ -81,6 +84,8 @@ if(BUILD_TESTING)
   add_test(NAME replay_roundtrip COMMAND replay_verify)
   find_package(Python3 QUIET COMPONENTS Interpreter)
   if(Python3_Interpreter_FOUND)
+    add_test(NAME robot_tableau_json COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_robot_tableau_record.py $<TARGET_FILE:robot_tableau_tests>)
     add_test(NAME hunger_choices_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_hunger_choices_record.py $<TARGET_FILE:hunger_choices_tests>)
     add_test(NAME hunger_json COMMAND ${Python3_EXECUTABLE}
