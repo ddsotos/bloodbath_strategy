@@ -76,3 +76,8 @@ p4/p5; see M1_TABLEAU_AUDIT.md. The opt-in subset supports BUILD/RESTOCK and
 total-population scoring but does not establish physical copy counts or a
 complete catalog. Population-changing Events/Robots stop with Buildings in play;
 their adapters and general ordering/LOST semantics remain unimplemented.
+
+The single-colony nonterminal Kale Farm adapter is now implemented separately
+(M1_TABLEAU_LOSS.md), using reviewed p7 transfers/discard/box loss and p5 absence
+of LOST. Event dispatch, cross-player priority and terminal cases remain open;
+the full population checklist item is therefore still incomplete.

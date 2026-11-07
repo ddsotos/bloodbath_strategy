@@ -90,6 +90,37 @@ std::vector<Choice> options(const base_rules::State& state, const Catalog& catal
                                   {colony.buildings[i], colony.buildings[j]}});
     return result;
 }
+population::Result lose_people(base_rules::State& state, const Catalog& catalog, Player p,
+                               std::uint64_t amount, const std::vector<Card>& chosen_buildings,
+                               EventClock clock, std::string cause, base_rules::EffectScope scope) {
+    player(p);
+    validate(state, catalog, scope);
+    const auto& colony = state.colonies[p];
+    if (total_people(colony, catalog) <= amount)
+        throw std::invalid_argument("terminal Building loss ordering is unsupported");
+    population::Colony input{colony.resources.people, {}, {}};
+    for (const auto card : colony.buildings) {
+        const auto boxes = colony.boxes.find(card);
+        input.buildings.push_back({card, 5, boxes == colony.boxes.end() ? 0 : boxes->second,
+                                   population::LostEffects::caller_verified_none});
+    }
+    population::Loss loss(std::move(input), p, amount, clock, std::move(cause));
+    for (const auto card : chosen_buildings) loss.choose_building(card);
+    if (loss.status() != population::Status::paid)
+        throw std::invalid_argument("incomplete Building loss choices");
+    auto next = state;
+    auto& target = next.colonies[p];
+    target.resources.people = loss.snapshot().base_people;
+    for (const auto& lost : loss.result().lost) {
+        target.buildings.erase(std::find(target.buildings.begin(), target.buildings.end(), lost.card));
+        target.boxes.erase(lost.card);
+        next.building_discard.push_back(lost.card);
+    }
+    validate(next, catalog, scope);
+    auto result = loss.result();
+    state = std::move(next);
+    return result;
+}
 WorkRecord resolve(base_rules::State& state, const Catalog& catalog, const std::array<Choice, 2>& choices,
                    std::array<Player, 2> schedule, std::uint64_t seed, base_rules::EffectScope scope) {
     validate(state, catalog, scope);

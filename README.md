@@ -29,6 +29,10 @@ private supplied Robot source and three nonterminal Robot handlers. Run
 opt-in BUILD/RESTOCK, PLAY/FARM effects and printed population scoring. Run
 `session_demo --tableau`; current Session Replay/JSON use schema 4.
 
+A [nonterminal Kale Farm loss adapter](docs/M1_TABLEAU_LOSS.md) now connects
+explicit Building-loss choices to shared cards and boxes atomically. Session
+population-changing effects with Buildings still await dedicated choice frames.
+
 ## Build and verify
 
 Requires CMake 3.20+ and a C++20 compiler. Tests use the standard library;
