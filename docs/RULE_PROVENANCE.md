@@ -74,6 +74,11 @@ See [RULES_CHECKLIST.md](RULES_CHECKLIST.md) for the unresolved gameplay items.
 
 ## Research conventions
 
+The [Hunger Building-choice audit](M1_HUNGER_CHOICES.md) visually checks p6/p7
+fixed food requirements, one shortage loss and Building transfer/discard/boxes.
+It connects only reviewed Kale Farms without LOST. Cross-player ordering and
+commitments are labelled caller conventions; terminal semantics remain open.
+
 The [Hunger payment audit](M1_HUNGER.md) visually checks p6 requirements,
 shortage and loss-free bonus and p5 lack of Kale Farm Hunger modifiers in the
 pinned reproduction. Only base-funded nonterminal shortages are connected;

@@ -133,14 +133,14 @@ void blockers_and_overflow_are_atomic() {
         input.colonies.colonies[0].resources.food = 0;
         input.colonies.colonies[0].resources.people = base_people;
         ses::Session game(input);
-        require(game.advance() == Phase::blocked_population_payment &&
+        require(game.advance() == Phase::hunger_choices && game.snapshot().pending_hunger &&
                     game.snapshot().colonies == input.colonies && !game.snapshot().hunger &&
                     !game.snapshot().deaths[0] && !game.snapshot().deaths[1] &&
-                    !game.snapshot().official && game.snapshot().progress.clock.decision == 0,
-                "unsupported Building loss partly paid Hunger or invented mortality");
+                    !game.snapshot().official && game.snapshot().progress.clock.decision == 1,
+                "pending Building loss partly paid Hunger or invented mortality");
         const auto blocked = game.snapshot();
-        require(game.advance() == Phase::blocked_population_payment && game.snapshot() == blocked,
-                "blocked Hunger skipped its active card");
+        require(game.advance() == Phase::hunger_choices && game.snapshot() == blocked,
+                "pending Hunger skipped its active card");
     }
     auto input = fixture();
     input.colonies.colonies[0].resources.food = 1; // valid payment must remain uncommitted
@@ -156,7 +156,7 @@ void replay_contracts() {
         auto input = json_fixture();
         input.config.seed = seed;
         const auto trace = ses::record(input, {{}, {}});
-        require(trace.schema == 6 && trace == ses::record(input, {{}, {}}) &&
+        require(trace.schema == 7 && trace == ses::record(input, {{}, {}}) &&
                     ses::verify(trace) == trace.checkpoints.back(), "Hunger replay not reproducible");
         auto changed = trace;
         changed.checkpoints[0].hunger->spent_food[0]++;

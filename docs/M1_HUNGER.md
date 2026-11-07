@@ -10,6 +10,10 @@ remain those in RULE_PROVENANCE.md.
 
 ## Implemented scope
 
+This document describes the schema-6 payment slice. The later
+[Hunger choice extension](M1_HUNGER_CHOICES.md) adds nonterminal Building losses
+and schema 7; its frame contract supersedes the Building-choice stop below.
+
 `Session::advance` computes required food, spent food, population loss and gain
 for both players before applying payment. This slice supports no Buildings or
 reviewed Kale Farms with no external modifiers, and only when each player's base

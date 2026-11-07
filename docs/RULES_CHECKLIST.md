@@ -89,3 +89,6 @@ LOST effects remain unresolved. No full checklist item is marked complete.
 Hunger now implements the p6 food formula and loss-free +2 for no-Building/Kale
 contexts when shortage can be paid from base without death (M1_HUNGER.md).
 Its Building-loss choices and terminal cases remain blocked; full coverage is open.
+The subsequent M1_HUNGER_CHOICES.md slice adds nonterminal Kale Farm losses
+while preserving original p6 food requirements. Terminal/general LOST handling
+and full card coverage remain open; caller schedule is a convention.

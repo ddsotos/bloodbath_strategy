@@ -47,6 +47,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Hunger now pays Building-count food and base-funded nonterminal shortages,
   applying +2 only without population loss, with schema-6 audit records.
   Building-loss and terminal frames remain pending (M1_HUNGER.md).
+  Hunger Building-loss choices now preserve original food requirements, private
+  commitments and ordered transfer/box records in schema 7. Terminal cases and
+  other Building definitions remain open (M1_HUNGER_CHOICES.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 
