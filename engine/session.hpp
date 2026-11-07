@@ -139,7 +139,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 10;
+    std::uint32_t schema = 11;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;
@@ -148,6 +148,16 @@ struct Replay {
 };
 Replay record(Input, const std::vector<Command>&);
 Snapshot verify(const Replay&);
+enum class TraceStatus { in_progress, awaiting_input, blocked_rule, conditional_terminal };
+struct TraceAssessment {
+    TraceStatus status = TraceStatus::in_progress;
+    std::optional<std::string> reason = std::nullopt;
+    bool terminal_resolved = false;
+    bool has_conditional_outcome = false;
+    bool operator==(const TraceAssessment&) const = default;
+};
+// Describes this conditional trace only. Never infers survival or full-game fidelity.
+TraceAssessment assess(const Snapshot&);
 // Engine/audit output containing private truth. Never provide it to a policy.
 std::string serialize_record(const Replay&);
 } // namespace bloodbath::session

@@ -101,3 +101,7 @@ and terminal interruption remain pending; ordering protocol is a caller conventi
 M1_BUTLER.md adds nonterminal Butler population payment and forced zero/single
 box targets. P7/p8/p9 do not identify the multi-target box selector: TODO obtain
 authoritative clarification. That tail stops after population with boxes unchanged.
+Reinspection p2/p6/p7 does not establish completing an opponent's Accident
+Building choices after first zero. Keep that terminal boundary blocked pending
+authoritative clarification. Schema-11 assessments mark unresolved traces explicitly;
+absence of death in them is not evidence of survival (M1_TRACE_ASSESSMENT.md).

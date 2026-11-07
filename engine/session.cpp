@@ -530,7 +530,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{10, manifest_hash, std::move(input), commands, {}};
+    Replay replay{11, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -538,7 +538,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 10 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 11 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);
@@ -547,5 +547,39 @@ Snapshot verify(const Replay& replay) {
         if (session.snapshot() != replay.checkpoints[i]) throw std::invalid_argument("session replay mismatch");
     }
     return session.snapshot();
+}
+TraceAssessment assess(const Snapshot& snapshot) {
+    TraceAssessment result;
+    result.has_conditional_outcome = snapshot.official.has_value();
+    switch (snapshot.phase) {
+    case Phase::ready: return result;
+    case Phase::work_decision:
+    case Phase::paperwork_draw_order:
+    case Phase::paperwork_discard:
+    case Phase::accident_choices:
+    case Phase::hunger_choices:
+    case Phase::robot_choices:
+        result.status = TraceStatus::awaiting_input;
+        return result;
+    case Phase::official_terminal:
+        result.status = TraceStatus::conditional_terminal;
+        result.terminal_resolved = result.has_conditional_outcome;
+        return result;
+    case Phase::blocked_unknown_card: result.reason = "unsupported_card_effect"; break;
+    case Phase::blocked_event_queue: result.reason = "supplied_event_source_exhausted"; break;
+    case Phase::blocked_population_payment: result.reason = "population_terminal_interruption_unverified"; break;
+    case Phase::unresolved_tie: result.reason = "terminal_tie_rule_unverified"; break;
+    case Phase::no_progress_cards: result.reason = "progress_exhaustion_not_official_end"; break;
+    case Phase::blocked_shared_draw: result.reason = "shared_draw_timing_unverified"; break;
+    case Phase::blocked_robot_deck: result.reason = "supplied_robot_source_exhausted"; break;
+    case Phase::blocked_robot_loss: result.reason = "robot_terminal_interruption_unverified"; break;
+    case Phase::blocked_tableau_effect:
+        result.reason = snapshot.robot && snapshot.robot->effect == Effect::robot_butler &&
+            !snapshot.robot->completed ? "butler_box_selector_unverified" : "unsupported_tableau_effect";
+        break;
+    default: throw std::invalid_argument("unknown trace phase");
+    }
+    result.status = TraceStatus::blocked_rule;
+    return result;
 }
 } // namespace bloodbath::session

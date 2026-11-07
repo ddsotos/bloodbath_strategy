@@ -194,7 +194,7 @@ void replay_contracts() {
         auto input = fixture();
         input.config.seed = seed;
         const auto replay = ses::record(input, script());
-        require(replay.schema == 10 && replay == ses::record(input, script()) &&
+        require(replay.schema == 11 && replay == ses::record(input, script()) &&
                     ses::verify(replay) == replay.checkpoints.back(), "Robot choice replay diverged");
         auto changed = replay;
         changed.checkpoints[0].pending_robot = Effect::mining_robot;
