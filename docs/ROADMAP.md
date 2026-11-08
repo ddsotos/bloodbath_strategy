@@ -75,9 +75,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   yield +2 people, but the local card-face render does not establish its full
   card text or trigger boundaries. It remains unimplemented pending source
   clarification (M1_MOON_HOTEL_AUDIT.md).
-  Fuel Cells p10 confirms spending a box placed by the same RESTOCK for +4
-  money, then drawing and discarding a Building card. Its full card face and
-  post-draw private discard frame remain pending (M1_FUEL_CELLS_AUDIT.md).
+  Fuel Cells p10 confirms cost 3, printed population 6, and an optional
+  RESTOCK box spend for +4 money followed by a Building draw/discard. A private
+  post-draw discard frame remains pending (M1_FUEL_CELLS_AUDIT.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

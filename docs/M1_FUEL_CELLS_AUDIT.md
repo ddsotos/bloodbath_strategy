@@ -17,14 +17,16 @@ same RESTOCK can be spent immediately in the example. It does not by itself
 resolve every legal ordering or how a newly drawn card participates in the
 discard choice.
 
-The local page render is not legible enough to independently record the full
-Fuel Cells card face, including its cost, printed population, and exact optional
-wording. Do not add it to the supported catalog from the note alone.
+I extracted the individual Fuel Cells image embedded in the pinned PDF's p10
+page and visually inspected it at its native 174x235 pixels. The card face
+shows cost 3 money, printed population 6, and: “RESTOCK: You may spend a box
+from here. If you do: +4 money, +1 card, -1 card.” The p10 note clarifies that
+the new box may be placed on Fuel Cells by that same RESTOCK before it is spent.
+This card text is now reviewed for the pinned reproduction, although the
+publisher-byte and physical-edition caveats above remain.
 
 ## Required implementation work
 
-- Obtain a legible source for the full card face and record all printed metadata
-  and exact ability text.
 - Add a privately recorded choice to spend a box on Fuel Cells during RESTOCK,
   including boxes just placed by that action.
 - Model the +4 money and Building draw, then capture the discard choice after
