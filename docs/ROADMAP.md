@@ -71,6 +71,10 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Schema-14 adds Potato Farm cost/population/FARM bonus and a privately committed
   food-for-money split on BUILD when Potato Farm is already in play. Money-loss
   effects remain money-only (M1_POTATO_FARM_AUDIT.md).
+  Moon Hotel p10 notes confirm the cited +4 FARM and +1 Kale Farm food gains
+  yield +2 people, but the local card-face render does not establish its full
+  card text or trigger boundaries. It remains unimplemented pending source
+  clarification (M1_MOON_HOTEL_AUDIT.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

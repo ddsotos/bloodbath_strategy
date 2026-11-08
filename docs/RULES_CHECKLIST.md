@@ -113,3 +113,6 @@ nonterminal loss metadata are implemented in the scoped Tableau (M1_FLAG.md).
 Terminal Flag loss and full Building catalog/setup remain unverified.
 Potato Farm p10 payment substitution is limited to actual payments and recorded
 in hidden Work commitments; money-loss effects remain unaffected.
+Moon Hotel p10's example supports +2 people for the cited +4 FARM and +1 Kale
+Farm food gains. Full card text, trigger unit/order and self-trigger behavior
+remain unverified; see [M1_MOON_HOTEL_AUDIT.md](M1_MOON_HOTEL_AUDIT.md).
