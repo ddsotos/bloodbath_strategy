@@ -116,3 +116,6 @@ in hidden Work commitments; money-loss effects remain unaffected.
 Moon Hotel p10's example supports +2 people for the cited +4 FARM and +1 Kale
 Farm food gains. Full card text, trigger unit/order and self-trigger behavior
 remain unverified; see [M1_MOON_HOTEL_AUDIT.md](M1_MOON_HOTEL_AUDIT.md).
+Fuel Cells p10 confirms a same-RESTOCK box may be spent for +4 money followed
+by a Building draw and discard. Full card metadata and the post-draw private
+choice frame remain pending; see [M1_FUEL_CELLS_AUDIT.md](M1_FUEL_CELLS_AUDIT.md).
