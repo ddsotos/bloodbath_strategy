@@ -144,7 +144,7 @@ struct Command {
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 12;
+    std::uint32_t schema = 13;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

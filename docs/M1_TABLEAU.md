@@ -130,3 +130,7 @@ game speed, improvement or strategic strength.
 Other Buildings, legal catalogs/setup, general effects, Building-aware losses,
 ties, unresolved priorities and production shadow continuation remain open.
 No opening Research recommendation follows from this conditional subset.
+
+Schema 13 adds the source-reviewed Flag as a second typed Building; see
+[M1_FLAG.md](M1_FLAG.md) for its metadata, Hunger exclusion and supported
+nonterminal loss behavior. The card catalog remains incomplete.

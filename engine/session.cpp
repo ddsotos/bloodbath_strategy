@@ -14,7 +14,7 @@ std::string robot_cause(Effect effect) {
         (effect == Effect::robot_butler ? "Robot Butler" : "Robot Waiter");
 }
 void robot_tail(base_rules::State& state, RobotRecord& result) {
-    // Only reviewed Kale Farms can be in play; they are not Mines.
+    // Reviewed Kale Farms/Flag have no Mining Robot Mine-count effect.
     if (result.effect == Effect::robot_waiter)
         for (Player p = 0; p < 2; ++p) {
             auto& colony = state.colonies[p];
@@ -184,7 +184,9 @@ Phase Session::advance() {
         bool terminal_possible = false;
         for (Player p = 0; p < 2; ++p) {
             const auto& colony = next.colonies.colonies[p];
-            result.required_food[p] = colony.buildings.size();
+            result.required_food[p] = config_.tableau_enabled
+                ? tableau::hunger_food_cost(colony, config_.building_catalog)
+                : colony.buildings.size();
             result.spent_food[p] = std::min(colony.resources.food, result.required_food[p]);
             result.population_loss[p] = result.required_food[p] - result.spent_food[p];
             const auto total = tableau::total_people(colony, config_.building_catalog);
@@ -541,7 +543,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{12, manifest_hash, std::move(input), commands, {}};
+    Replay replay{13, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -549,7 +551,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 12 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 13 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

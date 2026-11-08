@@ -1,7 +1,7 @@
 # Conditional trace assessment and unresolved results
 
 `session::assess` reports the disposition of an engine snapshot without changing
-it. Session Replay/JSON schema 12 includes this assessment in every checkpoint,
+it. Session Replay/JSON schema 13 includes this assessment in every checkpoint,
 the final snapshot, and at the top level for consumers of audit results.
 
 | Status | Meaning |
