@@ -15,18 +15,30 @@ void add(std::uint64_t& value, std::uint64_t amount) {
 void player(Player p) { if (p > 1) throw std::invalid_argument("invalid player"); }
 Kind known(const Catalog& catalog, Card card) {
     const auto found = catalog.find(card);
-    if (found == catalog.end() || (found->second != Kind::kale_farm && found->second != Kind::flag))
+    if (found == catalog.end() || (found->second != Kind::kale_farm && found->second != Kind::flag &&
+                                   found->second != Kind::potato_farm))
         throw std::invalid_argument("unsupported Building definition");
     return found->second;
+}
+bool potato_farm_active(const base_rules::Colony& colony, const Catalog& catalog) {
+    return std::any_of(colony.buildings.begin(), colony.buildings.end(), [&](Card card) {
+        return known(catalog, card) == Kind::potato_farm;
+    });
+}
+std::uint64_t farm_bonus(Kind kind) {
+    if (kind == Kind::kale_farm) return 1;
+    if (kind == Kind::potato_farm) return 2;
+    return 0;
 }
 void farm(base_rules::State& state, const Catalog& catalog, Player p, std::vector<EffectRecord>& effects) {
     auto& colony = state.colonies[p];
     add(colony.resources.food, 4);
     effects.push_back({p, EffectKind::farm_base, std::nullopt, 4});
     for (const auto card : colony.buildings) {
-        if (known(catalog, card) == Kind::kale_farm) {
-            add(colony.resources.food, 1);
-            effects.push_back({p, EffectKind::farm_bonus, card, 1});
+        const auto bonus = farm_bonus(known(catalog, card));
+        if (bonus > 0) {
+            add(colony.resources.food, bonus);
+            effects.push_back({p, EffectKind::farm_bonus, card, bonus});
         }
     }
 }
@@ -46,11 +58,13 @@ std::uint64_t hunger_food_cost(const base_rules::Colony& colony, const Catalog& 
 std::uint64_t build_cost(Kind kind) {
     if (kind == Kind::kale_farm) return 2;
     if (kind == Kind::flag) return 0;
+    if (kind == Kind::potato_farm) return 5;
     throw std::invalid_argument("unsupported Building definition");
 }
 std::uint64_t printed_people(Kind kind) {
     if (kind == Kind::kale_farm) return 5;
     if (kind == Kind::flag) return 0;
+    if (kind == Kind::potato_farm) return 6;
     throw std::invalid_argument("unsupported Building definition");
 }
 void validate(const base_rules::State& state, const Catalog& catalog, base_rules::EffectScope scope) {
@@ -68,7 +82,8 @@ void validate(const base_rules::State& state, const Catalog& catalog, base_rules
     physical.insert(state.building_deck.begin(), state.building_deck.end());
     physical.insert(state.building_discard.begin(), state.building_discard.end());
     for (const auto& [card, kind] : catalog)
-        if ((kind != Kind::kale_farm && kind != Kind::flag) || !physical.contains(card))
+        if ((kind != Kind::kale_farm && kind != Kind::flag && kind != Kind::potato_farm) ||
+            !physical.contains(card))
             throw std::invalid_argument("invalid subset Building catalog entry");
 }
 void validate_choice(const base_rules::State& state, const Catalog& catalog, Player p, const Choice& choice) {
@@ -77,12 +92,16 @@ void validate_choice(const base_rules::State& state, const Catalog& catalog, Pla
     if (choice.action == base_rules::WorkAction::build) {
         if (!choice.build || !choice.box_targets.empty()) throw std::invalid_argument("BUILD needs one target");
         known(catalog, *choice.build);
+        const auto cost = build_cost(known(catalog, *choice.build));
+        const auto can_use_food = potato_farm_active(colony, catalog);
         if (std::find(colony.hand.begin(), colony.hand.end(), *choice.build) == colony.hand.end() ||
-            colony.resources.money < build_cost(known(catalog, *choice.build)))
+            choice.food_payment > cost || (!can_use_food && choice.food_payment != 0) ||
+            colony.resources.food < choice.food_payment ||
+            colony.resources.money < cost - choice.food_payment)
             throw std::invalid_argument("BUILD target is not affordable/owned");
     } else if (choice.action == base_rules::WorkAction::restock) {
         const auto quota = colony.buildings.empty() ? std::size_t{0} : std::size_t{2};
-        if (choice.build || choice.box_targets.size() != quota)
+        if (choice.build || choice.box_targets.size() != quota || choice.food_payment != 0)
             throw std::invalid_argument("RESTOCK requires available two-box allocation");
         for (const auto card : choice.box_targets)
             if (std::find(colony.buildings.begin(), colony.buildings.end(), card) == colony.buildings.end())
@@ -90,7 +109,7 @@ void validate_choice(const base_rules::State& state, const Catalog& catalog, Pla
     } else if (choice.action != base_rules::WorkAction::mine && choice.action != base_rules::WorkAction::farm &&
                choice.action != base_rules::WorkAction::research) {
         throw std::invalid_argument("invalid tableau Work action");
-    } else if (choice.build || !choice.box_targets.empty()) {
+    } else if (choice.build || !choice.box_targets.empty() || choice.food_payment != 0) {
         throw std::invalid_argument("unexpected Work targets");
     }
 }
@@ -99,9 +118,16 @@ std::vector<Choice> options(const base_rules::State& state, const Catalog& catal
     std::vector<Choice> result{{base_rules::WorkAction::mine}, {base_rules::WorkAction::farm},
                                {base_rules::WorkAction::research}};
     const auto& colony = state.colonies[p];
-    for (const auto card : colony.hand)
-        if (catalog.contains(card) && colony.resources.money >= build_cost(catalog.at(card)))
-            result.push_back({base_rules::WorkAction::build, card});
+    const auto can_use_food = potato_farm_active(colony, catalog);
+    for (const auto card : colony.hand) {
+        const auto found = catalog.find(card);
+        if (found == catalog.end()) continue;
+        const auto cost = build_cost(found->second);
+        const auto max_food = can_use_food ? std::min(cost, colony.resources.food) : 0;
+        for (std::uint64_t food = 0; food <= max_food; ++food)
+            if (colony.resources.money >= cost - food)
+                result.push_back({base_rules::WorkAction::build, card, {}, food});
+    }
     if (colony.buildings.empty()) result.push_back({base_rules::WorkAction::restock});
     else
         for (std::size_t i = 0; i < colony.buildings.size(); ++i)
@@ -159,14 +185,17 @@ WorkRecord resolve(base_rules::State& state, const Catalog& catalog, const std::
             const auto card = *choice.build;
             const auto kind = known(catalog, card);
             const auto cost = build_cost(kind);
-            colony.resources.money -= cost;
-            record.effects.push_back({p, EffectKind::pay_money, card, cost});
+            colony.resources.money -= cost - choice.food_payment;
+            colony.resources.food -= choice.food_payment;
+            record.effects.push_back({p, EffectKind::pay_money, card, cost - choice.food_payment});
+            if (choice.food_payment > 0)
+                record.effects.push_back({p, EffectKind::pay_food, card, choice.food_payment});
             colony.hand.erase(std::find(colony.hand.begin(), colony.hand.end(), card));
             colony.buildings.push_back(card);
             colony.boxes.emplace(card, 0);
             record.effects.push_back({p, EffectKind::enter_play, card, printed_people(kind)});
             if (kind == Kind::kale_farm) farm(next, catalog, p, record.effects);
-            else {
+            else if (kind == Kind::flag) {
                 add(colony.resources.money, 6);
                 record.effects.push_back({p, EffectKind::money_gain, card, 6});
             }

@@ -86,8 +86,8 @@ Nonterminal Accident now has a Kale Farm choice frame (M1_ACCIDENT_CHOICES.md)
 using the p2 loss and p7 payment rules. Cross-player schedule is an explicit
 convention; terminal interruption, Hunger/Robots with Buildings and general
 LOST effects remain unresolved. No full checklist item is marked complete.
-Hunger now implements the p6 food formula and loss-free +2 for no-Building/Kale
-contexts when shortage can be paid from base without death (M1_HUNGER.md).
+Hunger implements the p6 food formula and loss-free +2 in no-Building/reviewed
+Building contexts when shortage can be paid from base without death (M1_HUNGER.md).
 Its Building-loss choices and terminal cases remain blocked; full coverage is open.
 The subsequent M1_HUNGER_CHOICES.md slice adds nonterminal Kale Farm losses
 while preserving original p6 food requirements. Terminal/general LOST handling
@@ -103,7 +103,7 @@ box targets. P7/p8/p9 do not identify the multi-target box selector: TODO obtain
 authoritative clarification. That tail stops after population with boxes unchanged.
 Reinspection p2/p6/p7 does not establish completing an opponent's Accident
 Building choices after first zero. Keep that terminal boundary blocked pending
-authoritative clarification. Schema-13 assessments mark unresolved traces explicitly;
+authoritative clarification. Schema-14 assessments mark unresolved traces explicitly;
 absence of death in them is not evidence of survival (M1_TRACE_ASSESSMENT.md).
 Budget Cuts p11 is a conditional per-player money loss capped at available
 money (M1_BUDGET_CUTS_AUDIT.md). Development setup, catalog, and general trigger
@@ -111,3 +111,5 @@ timing remain unverified.
 Flag p10's cost, printed population, PLAY gain, Hunger exemption and reviewed
 nonterminal loss metadata are implemented in the scoped Tableau (M1_FLAG.md).
 Terminal Flag loss and full Building catalog/setup remain unverified.
+Potato Farm p10 payment substitution is limited to actual payments and recorded
+in hidden Work commitments; money-loss effects remain unaffected.

@@ -68,6 +68,9 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   Schema-13 adds the p10 Flag Building: zero cost/printed people, +6 money on
   PLAY, no Hunger food requirement, and nonterminal printed-population loss
   support. Exact-zero terminal handling remains unresolved (M1_FLAG.md).
+  Schema-14 adds Potato Farm cost/population/FARM bonus and a privately committed
+  food-for-money split on BUILD when Potato Farm is already in play. Money-loss
+  effects remain money-only (M1_POTATO_FARM_AUDIT.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

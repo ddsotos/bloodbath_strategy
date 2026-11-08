@@ -125,7 +125,7 @@ The [Robot choices](M1_ROBOT_CHOICES.md) extension introduced schema 9,
 adding pending Robot effect and explicit population-loss resolution order.
 The [Butler extension](M1_BUTLER.md) introduced schema 10, adding box target
 and Robot completion fields, with explicit stops for ambiguous box selection.
-Current [trace assessments](M1_TRACE_ASSESSMENT.md) use schema 13, adding derived
+Current [trace assessments](M1_TRACE_ASSESSMENT.md) use schema 14, adding derived
 disposition/reason fields without changing game transitions or command IDs.
 
 ## Run and validate

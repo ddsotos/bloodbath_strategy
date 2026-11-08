@@ -22,8 +22,9 @@ Restock places two boxes on owned Buildings, together or split (p4); with no
 Buildings, no base box store is invented. No arbitrary box capacity/component
 limit is imposed (p2); integer overflow rejects as an implementation boundary.
 
-`Config::tableau_enabled` explicitly opts into the reviewed mode. Each in-play
-instance needs an adopted `Kind::kale_farm` definition. The existing scope flag
+`Config::tableau_enabled` explicitly opts into the reviewed mode. In the initial
+schema-4 slice, each in-play instance needed an adopted `Kind::kale_farm`
+definition; later Flag and Potato Farm additions are listed below. The scope flag
 certifies absence of **unmodeled external effects**, while adopted Farm effects
 run. Unknown in-play Buildings reject before any ability can be skipped. Unknown
 hand cards remain opaque, unsupported Build targets. Caller-supplied physical IDs
@@ -131,6 +132,7 @@ Other Buildings, legal catalogs/setup, general effects, Building-aware losses,
 ties, unresolved priorities and production shadow continuation remain open.
 No opening Research recommendation follows from this conditional subset.
 
-Schema 13 adds the source-reviewed Flag as a second typed Building; see
+Schema 14 includes the source-reviewed Flag and Potato Farm in the typed subset; see
 [M1_FLAG.md](M1_FLAG.md) for its metadata, Hunger exclusion and supported
-nonterminal loss behavior. The card catalog remains incomplete.
+nonterminal loss behavior and [Potato Farm audit](M1_POTATO_FARM_AUDIT.md) for
+payment substitution. The card catalog remains incomplete.

@@ -131,3 +131,5 @@ The [Budget Cuts audit](M1_BUDGET_CUTS_AUDIT.md) reviews p11's explicit loss
 examples and records the conditional implementation limits.
 The [Flag slice](M1_FLAG.md) reviews the p10 cost, printed population, PLAY,
 Hunger and loss notes, with terminal handling retained as an explicit gap.
+The [Potato Farm audit](M1_POTATO_FARM_AUDIT.md) covers its p10 cost, printed
+population, FARM bonus and restricted food-for-money payment modifier.

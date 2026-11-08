@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 trace = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert trace["schema_version"] == 13 and trace["full_game"] is False
-assert trace["policy_version"] == "caller-commands-v13"
+assert trace["schema_version"] == 14 and trace["full_game"] is False
+assert trace["policy_version"] == "caller-commands-v14"
 assert [c["kind"] for c in trace["commands"]] == [0, 0]
 initial = trace["initial"]["colonies"]
 first, final = trace["checkpoints"]
@@ -26,4 +26,4 @@ for field in ("building_deck", "building_discard", "building_shuffle_index"):
     assert final["colonies"][field] == initial[field]
 assert final["first_deaths"] == [None, None]
 assert final["conditional_official_outcome"] is None and trace["shadow"] is None
-print("Hunger schema-13 JSON audit passed")
+print("Hunger schema-14 JSON audit passed")

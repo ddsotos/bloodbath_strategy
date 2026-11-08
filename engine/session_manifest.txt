@@ -38,7 +38,8 @@ blocked_robot_loss stops before ALL population/tail mutation,with no death.
 Robot-deck exhaustion is blocked_robot_deck,not official end or a reshuffle.
 Unknown Robot blocks before any effects;no generic inferred damage.
 Replay/JSON schema3 includes private ordered_robots and next_robot index.
-Explicit tableau opt-in supports reviewed KaleFarm-only inplay context.
+Initial schema4 Tableau opt-in supported KaleFarm-only context; later additions
+are recorded under schemas13-14 below.
 Caller scope now excludes unmodeled external effects;known KaleFarm triggers run.
 Schema4 records Building catalog,opt-in,publicboxes,richWorkchoices/effectrecords.
 Reviewed Building Robot extensions below supersede original bare-only guards;
@@ -117,3 +118,6 @@ player. Does not implement Development deck setup or general card triggers.
 Schema13 adds reviewed Building Flag (p10) metadata and BUILD/PLAY: cost0,
 printed population0,PLAY +6 money,no Hunger food requirement. Its zero-person
 loss transfer is recorded as0; terminal ordering remains unimplemented.
+Schema14 adds Potato Farm (p10): cost5,printed population6,FARM+2 food and
+food may substitute for money only on payments. Build commits record the hidden
+food split; losses like Budget Cuts still remove money only.

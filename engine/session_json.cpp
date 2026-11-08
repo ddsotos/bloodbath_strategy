@@ -89,7 +89,8 @@ void paperwork(std::ostream& out, const std::optional<PaperworkRecord>& value) {
 void choice(std::ostream& out, const tableau::Choice& value) {
     out << "{\"action\":" << static_cast<unsigned>(value.action) << ",\"build\":";
     if (value.build) out << *value.build; else out << "null";
-    out << ",\"box_targets\":"; cards(out, value.box_targets); out << '}';
+    out << ",\"box_targets\":"; cards(out, value.box_targets);
+    out << ",\"food_payment\":" << value.food_payment << '}';
 }
 void tableau_record(std::ostream& out, const std::optional<tableau::WorkRecord>& value) {
     if (!value) { out << "null"; return; }
@@ -223,9 +224,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":13,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":14,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v13\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v14\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""
@@ -260,7 +261,8 @@ std::string serialize_record(const Replay& replay) {
             << static_cast<unsigned>(command.player) << ",\"action\":" << static_cast<unsigned>(command.action)
             << ",\"schedule\":[" << static_cast<unsigned>(command.schedule[0]) << ','
             << static_cast<unsigned>(command.schedule[1]) << "],\"cards\":";
-        cards(out, command.cards); out << '}';
+        cards(out, command.cards);
+        out << ",\"food_payment\":" << command.food_payment << '}';
     }
     out << "],\"checkpoints\":[";
     first = true;
