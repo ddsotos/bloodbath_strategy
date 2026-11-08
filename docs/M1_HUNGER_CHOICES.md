@@ -62,3 +62,5 @@ remaining P0/P1/P2 findings. Commands:
 ```
 
 This slice measures correctness only; it makes no simulation throughput claim.
+Later Potato Farm support is described in [M1_POTATO_FARM_AUDIT.md](M1_POTATO_FARM_AUDIT.md);
+Flag's Hunger exemption is in [M1_FLAG.md](M1_FLAG.md).

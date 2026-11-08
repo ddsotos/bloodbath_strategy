@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 record = json.loads(subprocess.check_output([sys.argv[1], "--budget-cuts-json"], text=True))
-assert record["schema_version"] == 13 and record["full_game"] is False
+assert record["schema_version"] == 14 and record["full_game"] is False
 assert len(record["commands"]) == len(record["checkpoints"]) == 1
 checkpoint = record["checkpoints"][0]
 assert checkpoint["trace_assessment"]["status"] == "in_progress"

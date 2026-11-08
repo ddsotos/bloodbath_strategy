@@ -14,7 +14,7 @@ std::string robot_cause(Effect effect) {
         (effect == Effect::robot_butler ? "Robot Butler" : "Robot Waiter");
 }
 void robot_tail(base_rules::State& state, RobotRecord& result) {
-    // Reviewed Kale Farms/Flag have no Mining Robot Mine-count effect.
+    // Reviewed Kale Farms/Flag/Potato Farms have no Mining Robot Mine-count effect.
     if (result.effect == Effect::robot_waiter)
         for (Player p = 0; p < 2; ++p) {
             auto& colony = state.colonies[p];
@@ -109,7 +109,10 @@ Effect effect_of(const Config& config, progression::Card card) {
 void execute(Session& session, const Command& command) {
     switch (command.kind) {
     case CommandKind::advance: (void)session.advance(); break;
-    case CommandKind::commit: session.commit(command.player, command.action); break;
+    case CommandKind::commit:
+        if (command.food_payment != 0) throw std::invalid_argument("basic Work cannot carry food payment");
+        session.commit(command.player, command.action);
+        break;
     case CommandKind::resolve_work: (void)session.resolve_work(command.schedule); break;
     case CommandKind::prepare_paperwork: (void)session.prepare_paperwork(command.schedule); break;
     case CommandKind::commit_discards: session.commit_discards(command.player, command.cards); break;
@@ -125,6 +128,7 @@ void execute(Session& session, const Command& command) {
             choice.build = command.cards[0];
         } else if (command.action == base_rules::WorkAction::restock) choice.box_targets = command.cards;
         else if (!command.cards.empty()) throw std::invalid_argument("unexpected Work command cards");
+        choice.food_payment = command.food_payment;
         session.commit_choice(command.player, choice);
         break;
     }
@@ -543,7 +547,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{13, manifest_hash, std::move(input), commands, {}};
+    Replay replay{14, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -551,7 +555,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 13 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 14 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);

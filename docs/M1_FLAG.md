@@ -27,3 +27,6 @@ zero printed population, no Farm trigger, Hunger exemption, zero-transfer loss,
 box/card disposal, terminal guard atomicity, deterministic replay and JSON audit.
 These fixtures are not official setup samples; no strategic or full-game claim
 follows.
+
+Schema 14 extends this Tableau subset with Potato Farm; see
+[M1_POTATO_FARM_AUDIT.md](M1_POTATO_FARM_AUDIT.md).

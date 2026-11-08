@@ -141,10 +141,11 @@ struct Command {
     base_rules::WorkAction action = base_rules::WorkAction::mine;
     std::array<Player, 2> schedule{0, 1};
     std::vector<base_rules::Card> cards{};
+    std::uint64_t food_payment = 0;
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 13;
+    std::uint32_t schema = 14;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;
