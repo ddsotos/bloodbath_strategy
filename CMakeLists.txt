@@ -69,6 +69,9 @@ if(BUILD_TESTING)
   add_executable(tableau_tests tests/tableau_tests.cpp)
   target_link_libraries(tableau_tests PRIVATE bloodbath)
   add_test(NAME tableau_contracts COMMAND tableau_tests)
+  add_executable(flag_tests tests/flag_tests.cpp)
+  target_link_libraries(flag_tests PRIVATE bloodbath)
+  add_test(NAME flag_contracts COMMAND flag_tests)
   add_executable(robot_tests tests/robot_tests.cpp)
   target_link_libraries(robot_tests PRIVATE bloodbath)
   add_test(NAME robot_contracts COMMAND robot_tests)
@@ -99,6 +102,8 @@ if(BUILD_TESTING)
     add_test(NAME budget_cuts_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_budget_cuts_record.py
       $<TARGET_FILE:session_tests>)
+    add_test(NAME flag_json COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_flag_record.py $<TARGET_FILE:flag_tests>)
     add_test(NAME butler_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_butler_record.py $<TARGET_FILE:butler_tests>)
     add_test(NAME robot_choices_json COMMAND ${Python3_EXECUTABLE}

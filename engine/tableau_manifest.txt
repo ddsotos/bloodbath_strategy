@@ -1,4 +1,4 @@
-reviewed-tableau-v2; conditional Kale-Farm-only context,not a full card catalog
+reviewed-tableau-v3; conditional Kale-Farm/Flag context,not a full card catalog
 Pinned publisher-authored English reproduction SHA256:
 63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
 p4 BUILD:pay printedcost,put hand card inplay,thenPLAY effects.
@@ -10,7 +10,7 @@ Printed people remain in Building,not transferred tobase onBuild.
 p4 RESTOCK:2boxes onto ownedBuildings,same or split;no base box zone.
 p2 chits not component-limited;no arbitrary box cap;uint64 overflow rejects.
 p7 total population=base+printedBuilding people;zero base is not zero total.
-Only known KaleFarms may be inplay;external modifiers must be certified absent.
+Only known KaleFarms and Flags may be inplay;external modifiers must be absent.
 Canonical FARM base-then-bonuses order is safe for these additive commutative
 effects only;no claim it represents general ordered/optional trigger resolution.
 Both choices locked before scheduled apply;known affordable BUILD options and
@@ -26,3 +26,6 @@ Lost cards append sharedBuildingDiscard in caller-selected order;cross-player
 ordering remains caller convention,not verified official priority.
 Result retains requested/paid/lost transfers/boxes;no shadow or official outcome.
 Tableau hash includes base and progression/population manifest hashes.
+P10 Flag:cost0,printedpeople0,PLAY+6money,noHungerfood. FARM bonuses apply
+only to KaleFarms. Flag loss transfers0 printed people but discards card/boxes.
+Flag terminal edge cases remain blocked with other unverified interruption paths.

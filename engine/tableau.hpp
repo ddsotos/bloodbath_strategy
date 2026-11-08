@@ -6,7 +6,7 @@
 namespace bloodbath::tableau {
 inline constexpr const char* manifest_hash = BLOODBATH_TABLEAU_HASH;
 using Card = base_rules::Card;
-enum class Kind { kale_farm };
+enum class Kind { kale_farm, flag };
 using Catalog = std::map<Card, Kind>;
 struct Choice {
     base_rules::WorkAction action = base_rules::WorkAction::mine;
@@ -14,7 +14,7 @@ struct Choice {
     std::vector<Card> box_targets{};
     bool operator==(const Choice&) const = default;
 };
-enum class EffectKind { pay_money, enter_play, farm_base, farm_bonus, place_box, mine_base, draw_card };
+enum class EffectKind { pay_money, enter_play, farm_base, farm_bonus, place_box, mine_base, draw_card, money_gain };
 struct EffectRecord {
     Player player;
     EffectKind kind;
@@ -31,6 +31,9 @@ struct WorkRecord {
 };
 void validate(const base_rules::State&, const Catalog&, base_rules::EffectScope);
 std::uint64_t total_people(const base_rules::Colony&, const Catalog&);
+std::uint64_t hunger_food_cost(const base_rules::Colony&, const Catalog&);
+std::uint64_t build_cost(Kind);
+std::uint64_t printed_people(Kind);
 // Pure choice queries require an already-validated reviewed context.
 std::vector<Choice> options(const base_rules::State&, const Catalog&, Player);
 void validate_choice(const base_rules::State&, const Catalog&, Player, const Choice&);

@@ -125,7 +125,7 @@ The [Robot choices](M1_ROBOT_CHOICES.md) extension introduced schema 9,
 adding pending Robot effect and explicit population-loss resolution order.
 The [Butler extension](M1_BUTLER.md) introduced schema 10, adding box target
 and Robot completion fields, with explicit stops for ambiguous box selection.
-Current [trace assessments](M1_TRACE_ASSESSMENT.md) use schema 12, adding derived
+Current [trace assessments](M1_TRACE_ASSESSMENT.md) use schema 13, adding derived
 disposition/reason fields without changing game transitions or command IDs.
 
 ## Run and validate
@@ -183,7 +183,7 @@ ties, full game replay and production shadow conventions remain open. This slice
 adds actual reviewed card transitions but does not mark M1/M2 complete or justify
 an opening Research recommendation.
 
-Schema 12 adds the p11 Development Card Notes case for Budget Cuts: each
+Schema 12 added the p11 Development Card Notes case for Budget Cuts: each
 player loses up to two money, limited by money currently held. Actual losses are
 recorded separately; this does not establish the Development deck or trigger
 timing for other cards.

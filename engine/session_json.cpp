@@ -223,9 +223,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":12,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":13,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v12\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v13\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""
