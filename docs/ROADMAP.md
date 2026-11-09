@@ -75,9 +75,10 @@ Each milestone must produce code + tests + a brief reproducible benchmark when a
   yield +2 people, but the local card-face render does not establish its full
   card text or trigger boundaries. It remains unimplemented pending source
   clarification (M1_MOON_HOTEL_AUDIT.md).
-  Fuel Cells p10 confirms cost 3, printed population 6, and an optional
-  RESTOCK box spend for +4 money followed by a Building draw/discard. A private
-  post-draw discard frame remains pending (M1_FUEL_CELLS_AUDIT.md).
+  Schema-15 adds Fuel Cells cost 3/population 6 and the optional RESTOCK box
+  spend, +4 money, Building draw and private post-draw discard frame. It limits
+  each colony to one in-play copy, one activation per Work, and rejects pairing
+  with Research until interleaving is modeled (M1_FUEL_CELLS_AUDIT.md).
 - [ ] Test card conservation, negative resources if applicable, deck mutation/shuffling and legal choices.
 **Accept:** tests cover implemented rule subset; never claim full coverage before full card catalog passes.
 

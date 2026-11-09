@@ -1,4 +1,4 @@
-reviewed-tableau-v4; conditional Kale-Farm/Flag/Potato-Farm context,not a full card catalog
+reviewed-tableau-v5; conditional Kale-Farm/Flag/Potato-Farm/Fuel-Cells context,not a full card catalog
 Pinned publisher-authored English reproduction SHA256:
 63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
 p4 BUILD:pay printedcost,put hand card inplay,thenPLAY effects.
@@ -10,7 +10,8 @@ Printed people remain in Building,not transferred tobase onBuild.
 p4 RESTOCK:2boxes onto ownedBuildings,same or split;no base box zone.
 p2 chits not component-limited;no arbitrary box cap;uint64 overflow rejects.
 p7 total population=base+printedBuilding people;zero base is not zero total.
-Only known KaleFarms, Flags and PotatoFarms may be inplay;external modifiers absent.
+Only known KaleFarms, Flags, PotatoFarms and a single FuelCells may be inplay
+per colony;external modifiers absent.
 Canonical FARM base-then-bonuses order is safe for these additive commutative
 effects only;no claim it represents general ordered/optional trigger resolution.
 Both choices locked before scheduled apply;known affordable BUILD options and
@@ -33,3 +34,10 @@ Flag terminal edge cases remain blocked with other unverified interruption paths
 P10 PotatoFarm:cost5,printedpeople6,FARM+2food. In-play PotatoFarm permits
 food as part/all of money payments,with a hidden per-Build choice amount.
 An unbuilt PotatoFarm cannot fund itself; BudgetCuts losses remain money-only.
+P10 FuelCells:cost3,printedpeople6. During RESTOCK,may spend one box from
+FuelCells for +4money,draw1Building,then discard1Building. The p10 note confirms
+a box placed on FuelCells by the same RESTOCK may be spent immediately.
+This subset supports at most one in-play FuelCells per colony and one FuelCells
+activation across both players in a Work; it rejects opponent Research alongside
+activation because draw/discard interleaving is not modeled. The later discard
+choice occurs only after the draw and is private until committed.

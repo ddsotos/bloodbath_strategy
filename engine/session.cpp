@@ -107,6 +107,8 @@ Effect effect_of(const Config& config, progression::Card card) {
     return found == config.effects.end() ? Effect::unsupported : found->second;
 }
 void execute(Session& session, const Command& command) {
+    if (command.fuel_cells_spend && command.kind != CommandKind::commit_choice)
+        throw std::invalid_argument("Fuel Cells option belongs to a rich Work commitment");
     switch (command.kind) {
     case CommandKind::advance: (void)session.advance(); break;
     case CommandKind::commit:
@@ -129,6 +131,7 @@ void execute(Session& session, const Command& command) {
         } else if (command.action == base_rules::WorkAction::restock) choice.box_targets = command.cards;
         else if (!command.cards.empty()) throw std::invalid_argument("unexpected Work command cards");
         choice.food_payment = command.food_payment;
+        choice.spend_fuel_cells = command.fuel_cells_spend;
         session.commit_choice(command.player, choice);
         break;
     }
@@ -371,12 +374,23 @@ base_rules::WorkRecord Session::resolve_work(std::array<Player, 2> schedule) {
         result = batch.resolve(schedule);
         next.colonies = batch.snapshot();
     }
-    progression::Deck deck(next.progress, config_.seed);
-    deck.finish_active();
-    next.progress = deck.snapshot();
     next.commitments = {};
     next.work_choices = {};
-    next.phase = Phase::ready;
+    std::optional<Player> discard_player;
+    if (config_.tableau_enabled && next.tableau_work)
+        for (Player p = 0; p < 2; ++p)
+            if (next.tableau_work->choices[p].spend_fuel_cells && !next.colonies.colonies[p].hand.empty())
+                discard_player = p;
+    if (discard_player) {
+        next.pending_fuel_cells_discard = discard_player;
+        next.phase = Phase::fuel_cells_discard;
+    } else {
+        progression::Deck deck(next.progress, config_.seed);
+        deck.finish_active();
+        next.progress = deck.snapshot();
+        next.pending_fuel_cells_discard.reset();
+        next.phase = Phase::ready;
+    }
     state_ = std::move(next);
     return result;
 }
@@ -391,7 +405,9 @@ Observation Session::observe(Player p) const {
     colony.public_buildings = {state_.colonies.colonies[0].buildings, state_.colonies.colonies[1].buildings};
     colony.public_boxes = {state_.colonies.colonies[0].boxes, state_.colonies.colonies[1].boxes};
     const auto required = state_.phase == Phase::paperwork_discard ?
-        std::min(std::size_t{2}, state_.colonies.colonies[p].hand.size()) : 0;
+        std::min(std::size_t{2}, state_.colonies.colonies[p].hand.size()) :
+        (state_.phase == Phase::fuel_cells_discard && state_.pending_fuel_cells_discard == p ?
+            std::min(std::size_t{1}, state_.colonies.colonies[p].hand.size()) : 0);
     std::vector<base_rules::Card> loss_options;
     const auto loss_amount = state_.phase == Phase::hunger_choices ? state_.pending_hunger->population_loss[p] :
         (state_.phase == Phase::robot_choices ? robot_amount(*state_.pending_robot) : 3);
@@ -508,6 +524,32 @@ Phase Session::prepare_paperwork(std::array<Player, 2> schedule) {
     return state_.phase;
 }
 void Session::commit_discards(Player p, std::vector<base_rules::Card> cards) {
+    if (state_.phase == Phase::fuel_cells_discard) {
+        if (p > 1 || state_.pending_fuel_cells_discard != p)
+            throw std::invalid_argument("Fuel Cells discard belongs to its activating player");
+        const auto& hand = state_.colonies.colonies[p].hand;
+        if (cards.size() != std::min(std::size_t{1}, hand.size()))
+            throw std::invalid_argument("Fuel Cells must discard one available hand card");
+        std::set<base_rules::Card> selected;
+        for (const auto card : cards)
+            if (!selected.insert(card).second || std::find(hand.begin(), hand.end(), card) == hand.end())
+                throw std::invalid_argument("Fuel Cells discard must select an owned hand card");
+        auto next = state_;
+        if (!cards.empty()) {
+            auto& next_hand = next.colonies.colonies[p].hand;
+            next_hand.erase(std::find(next_hand.begin(), next_hand.end(), cards[0]));
+            next.colonies.building_discard.push_back(cards[0]);
+            next.tableau_work->fuel_cells_discarded[p] = cards[0];
+        }
+        next.pending_fuel_cells_discard.reset();
+        next.discard_commitments = {};
+        progression::Deck deck(next.progress, config_.seed);
+        deck.finish_active();
+        next.progress = deck.snapshot();
+        next.phase = Phase::ready;
+        state_ = std::move(next);
+        return;
+    }
     if (p > 1 || state_.phase != Phase::paperwork_discard || state_.discard_commitments[p])
         throw std::invalid_argument("not an open Paperwork discard commitment");
     const auto& hand = state_.colonies.colonies[p].hand;
@@ -547,7 +589,7 @@ PaperworkRecord Session::resolve_paperwork(std::array<Player, 2> schedule) {
 }
 Replay record(Input input, const std::vector<Command>& commands) {
     Session session(input);
-    Replay replay{14, manifest_hash, std::move(input), commands, {}};
+    Replay replay{15, manifest_hash, std::move(input), commands, {}};
     for (const auto& command : commands) {
         execute(session, command);
         replay.checkpoints.push_back(session.snapshot());
@@ -555,7 +597,7 @@ Replay record(Input input, const std::vector<Command>& commands) {
     return replay;
 }
 Snapshot verify(const Replay& replay) {
-    if (replay.schema != 14 || replay.subset_hash != manifest_hash ||
+    if (replay.schema != 15 || replay.subset_hash != manifest_hash ||
         replay.commands.size() != replay.checkpoints.size())
         throw std::invalid_argument("unsupported or incomplete session replay");
     Session session(replay.initial);
@@ -573,6 +615,7 @@ TraceAssessment assess(const Snapshot& snapshot) {
     case Phase::work_decision:
     case Phase::paperwork_draw_order:
     case Phase::paperwork_discard:
+    case Phase::fuel_cells_discard:
     case Phase::accident_choices:
     case Phase::hunger_choices:
     case Phase::robot_choices:

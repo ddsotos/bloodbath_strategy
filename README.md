@@ -27,8 +27,9 @@ stops explicitly. The [Glitch/Robot extension](docs/M1_GLITCH_ROBOTS.md) adds a
 private supplied Robot source and three nonterminal Robot handlers. Run
 `session_demo --robots`. [Reviewed Kale Farm Tableau](docs/M1_TABLEAU.md) adds
 opt-in BUILD/RESTOCK, PLAY/FARM effects and printed population scoring. Run
-`session_demo --tableau`; its reviewed Kale Farm/Flag subset and current
-Session Replay/JSON use schema 14.
+`session_demo --tableau`; its reviewed Kale Farm, Flag, Potato Farm and Fuel
+Cells subset and current Session Replay/JSON use schema 15. Fuel Cells supports
+the reviewed RESTOCK box/draw/discard path with explicit timing guards.
 
 A [nonterminal Kale Farm loss adapter](docs/M1_TABLEAU_LOSS.md) now connects
 explicit Building-loss choices to shared cards and boxes atomically. Session

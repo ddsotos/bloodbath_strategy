@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 trace = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert trace["schema_version"] == 14 and trace["full_game"] is False
-assert trace["policy_version"] == "caller-commands-v14"
+assert trace["schema_version"] == 15 and trace["full_game"] is False
+assert trace["policy_version"] == "caller-commands-v15"
 assert [c["kind"] for c in trace["commands"]] == [0, 7, 7, 10]
 points = trace["checkpoints"]
 for point in points[:3]:

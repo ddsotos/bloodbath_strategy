@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 trace = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert trace["schema_version"] == 14 and trace["full_game"] is False
-assert trace["policy_version"] == "caller-commands-v14"
+assert trace["schema_version"] == 15 and trace["full_game"] is False
+assert trace["policy_version"] == "caller-commands-v15"
 assert [c["kind"] for c in trace["commands"]] == [0, 7, 7, 9]
 points = trace["checkpoints"]
 amounts = dict(required_food=[2, 1], spent_food=[0, 0], population_loss=[2, 1], population_gain=[0, 0])

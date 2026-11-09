@@ -15,7 +15,7 @@ enum class Phase {
     blocked_population_payment, unresolved_tie, no_progress_cards, official_terminal,
     paperwork_draw_order, paperwork_discard, blocked_shared_draw,
     blocked_robot_deck, blocked_robot_loss, blocked_tableau_effect, accident_choices, hunger_choices,
-    robot_choices
+    robot_choices, fuel_cells_discard
 };
 struct Config {
     std::uint64_t seed = 0;
@@ -87,6 +87,7 @@ struct Snapshot {
     std::optional<TerminalEvidence> terminal_evidence;
     std::optional<PaperworkRecord> paperwork;
     std::array<std::optional<std::vector<base_rules::Card>>, 2> discard_commitments;
+    std::optional<Player> pending_fuel_cells_discard;
     std::array<std::optional<tableau::Choice>, 2> work_choices;
     std::optional<tableau::WorkRecord> tableau_work;
     std::optional<AccidentRecord> accident;
@@ -142,10 +143,11 @@ struct Command {
     std::array<Player, 2> schedule{0, 1};
     std::vector<base_rules::Card> cards{};
     std::uint64_t food_payment = 0;
+    bool fuel_cells_spend = false;
     bool operator==(const Command&) const = default;
 };
 struct Replay {
-    std::uint32_t schema = 14;
+    std::uint32_t schema = 15;
     std::string subset_hash = manifest_hash;
     Input initial;
     std::vector<Command> commands;

@@ -1,6 +1,6 @@
 # Fuel Cells source audit and implementation boundary
 
-Audit date: 2026-11-08. I inspected the Fuel Cells entry and example on p10 of
+Audit date: 2026-11-09. I inspected the Fuel Cells entry and example on p10 of
 the pinned publisher-authored English reproduction cited in
 [M1_RULE_AUDIT.md](M1_RULE_AUDIT.md), SHA-256
 `63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6`.
@@ -25,16 +25,27 @@ the new box may be placed on Fuel Cells by that same RESTOCK before it is spent.
 This card text is now reviewed for the pinned reproduction, although the
 publisher-byte and physical-edition caveats above remain.
 
-## Required implementation work
+## Conditional implementation
 
-- Add a privately recorded choice to spend a box on Fuel Cells during RESTOCK,
-  including boxes just placed by that action.
-- Model the +4 money and Building draw, then capture the discard choice after
-  the drawn card is known; keep that card private from the opponent.
-- Preserve replay/JSON data for the extra choice and validate an empty-deck
-  recycle path against the adopted Building-deck rule.
-- Add fixtures for both spending an existing box and spending a box placed by
-  that RESTOCK, plus invalid/unavailable choices and hidden-draw privacy.
+Session schema 15 implements this Building for a deliberately narrow supported
+context. The hidden Work commitment records whether the player will use Fuel
+Cells. RESTOCK first places both boxes; the selected Fuel Cells box is then
+spent, +4 money is recorded, and one Building is drawn using the existing
+seeded recycle path. The Session enters a private discard phase after the draw.
+Only the activating player may choose one card from their resulting hand,
+including the newly drawn card. The discard becomes public and the active Work
+finishes only after that choice commits. Replay and JSON retain the activation,
+draw, pending owner, and discard.
 
-No gameplay handler is approved by this partial audit. Unknown or unresolved
-cases must stop explicitly; no official terminal result is inferred.
+The subset accepts at most one in-play Fuel Cells per colony. It also accepts
+at most one activation in a simultaneous Work and rejects an activation paired
+with either player's Research. Those stops avoid inventing draw/discard
+interleaving rules not covered by the reviewed example. They are implementation
+boundaries, not claimed official restrictions. Source edition and physical
+printing remain unverified, and no full catalog or strategy claim follows.
+
+Synthetic contract and JSON tests cover existing-box and same-RESTOCK-box
+spending, Building discard recycling, hidden commitments/draw, owner-only
+discard choice, replay tampering and the unsupported timing boundary.
+
+No official terminal result is inferred by this card handler.

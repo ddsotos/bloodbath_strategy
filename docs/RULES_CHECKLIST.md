@@ -116,6 +116,7 @@ in hidden Work commitments; money-loss effects remain unaffected.
 Moon Hotel p10's example supports +2 people for the cited +4 FARM and +1 Kale
 Farm food gains. Full card text, trigger unit/order and self-trigger behavior
 remain unverified; see [M1_MOON_HOTEL_AUDIT.md](M1_MOON_HOTEL_AUDIT.md).
-Fuel Cells p10 confirms cost 3, printed population 6, and a RESTOCK box spend
-for +4 money followed by a Building draw/discard. The post-draw private choice
-frame remains pending; see [M1_FUEL_CELLS_AUDIT.md](M1_FUEL_CELLS_AUDIT.md).
+Fuel Cells p10 cost 3/population 6 and RESTOCK box effect are implemented in
+schema 15 with a private post-draw discard choice. Multiple active copies,
+simultaneous activations, and concurrent Research remain outside this subset;
+see [M1_FUEL_CELLS_AUDIT.md](M1_FUEL_CELLS_AUDIT.md).

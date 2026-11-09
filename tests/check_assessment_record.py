@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 trace = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert trace["schema_version"] == 14 and trace["full_game"] is False
+assert trace["schema_version"] == 15 and trace["full_game"] is False
 expected = dict(status="blocked_rule", reason="butler_box_selector_unverified",
     terminal_resolved=False, has_conditional_outcome=False)
 assert trace["trace_assessment"] == expected
