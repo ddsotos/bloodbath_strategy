@@ -133,3 +133,9 @@ The [Flag slice](M1_FLAG.md) reviews the p10 cost, printed population, PLAY,
 Hunger and loss notes, with terminal handling retained as an explicit gap.
 The [Potato Farm audit](M1_POTATO_FARM_AUDIT.md) covers its p10 cost, printed
 population, FARM bonus and restricted food-for-money payment modifier.
+
+The [Moon Hotel audit](M1_MOON_HOTEL_AUDIT.md) now records the legible p10 card
+face and a matching SHA-256 from an independently retrieved mirror copy. The
+publisher's current PDF bytes remain inaccessible behind a Cloudflare
+challenge, so the mirror match does not establish current publisher-byte or
+physical-edition identity.

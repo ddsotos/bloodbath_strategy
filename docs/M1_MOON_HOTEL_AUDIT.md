@@ -1,33 +1,40 @@
 # Moon Hotel source audit and implementation boundary
 
-Audit date: 2026-11-08. This records a candidate Building extension from p10 of
+Audit date: 2026-11-09. This records a candidate Building extension from p10 of
 the pinned publisher-authored English reproduction cited in
 [M1_RULE_AUDIT.md](M1_RULE_AUDIT.md), SHA-256
 `63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6`.
-The source bytes' equality to the current publisher PDF and the intended
-physical printing remain unverified; see [RULE_PROVENANCE.md](RULE_PROVENANCE.md).
+The same bytes were independently re-fetched from the Tesera-hosted rulebook
+mirror and matched this SHA-256. The publisher URL remains behind a Cloudflare
+challenge, so equality to the publisher's currently served bytes and the
+intended physical printing remain unverified; see
+[RULE_PROVENANCE.md](RULE_PROVENANCE.md).
+
+## Card face
+
+The embedded Moon Hotel image on p10 is legible when extracted at native image
+resolution. It shows cost 6 Money, printed population 10, the ability “Each time
+you get +1 Food or more, +1 People,” and `PLAY: Add “Tourists”`. This verifies
+the card metadata and the exact printed trigger threshold against the pinned
+reproduction. The Tourists card's effect and the transition for adding it to the
+Progress deck still need their own implementation-ready audit.
 
 ## Reviewed example
 
 The p10 Building Card Notes say that Moon Hotel counts each time its owner gets
-`+1 food`. The printed example says a Farm produces `+4 food` and an owned Kale
-Farm produces another `+1 food`, so Moon Hotel gives `+2 people` in that case.
-This supports counting those two cited food gains as two triggers in that
-example. It does not establish that each individual food token is a separate
-trigger, or resolve every other source of food gain.
-
-The card image's cost, printed population, full card text, and PLAY effect were
-not legible enough in the available local render to audit independently. In
-particular, do not assume that BUILD/PLAY is a Farm or that the card's own food
-gain can trigger itself. No implementation or rule manifest entry is approved
-from this partial observation.
+food. Its example says the base FARM gain of +4 Food and the separate Kale Farm
+bonus of +1 Food cause two Moon Hotel triggers, yielding +2 People. The card
+face's “+1 Food or more” wording and this example together support one trigger
+per distinct positive Food-gain effect, regardless of its amount; they do not
+support one trigger per Food token. No exhaustive list of every Food source or
+the ordering of nested/simultaneous triggers has been audited.
 
 ## Required follow-up before implementation
 
-- Obtain a legible source for the full Moon Hotel card face and independently
-  record cost, printed population, all triggers, and PLAY behavior.
-- Resolve the trigger unit and ordering for simultaneous or nested food gains,
-  including whether Moon Hotel itself can cause a further trigger.
+- Audit the Tourists perk text, physical identity, and Progress-deck addition
+  semantics before implementing `PLAY: Add “Tourists”`.
+- Resolve ordering for simultaneous/nested Food gains and verify each supported
+  Food-producing effect separately before connecting Moon Hotel to it.
 - Add explicit fixtures for the p10 `+4` Farm plus `+1` Kale Farm example and
   each adopted trigger boundary before enabling the card in the Tableau catalog.
 - Keep any unresolved case as a stop; do not infer an official transition or

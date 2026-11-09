@@ -113,9 +113,11 @@ nonterminal loss metadata are implemented in the scoped Tableau (M1_FLAG.md).
 Terminal Flag loss and full Building catalog/setup remain unverified.
 Potato Farm p10 payment substitution is limited to actual payments and recorded
 in hidden Work commitments; money-loss effects remain unaffected.
-Moon Hotel p10's example supports +2 people for the cited +4 FARM and +1 Kale
-Farm food gains. Full card text, trigger unit/order and self-trigger behavior
-remain unverified; see [M1_MOON_HOTEL_AUDIT.md](M1_MOON_HOTEL_AUDIT.md).
+Moon Hotel p10's card face verifies cost 6, printed population 10, one People
+per distinct positive Food-gain effect, and `PLAY: Add “Tourists”`. Its example
+confirms separate +4 FARM and +1 Kale Farm gains trigger twice. Tourists' effect
+and nested/simultaneous trigger ordering remain open; see
+[M1_MOON_HOTEL_AUDIT.md](M1_MOON_HOTEL_AUDIT.md).
 Fuel Cells p10 cost 3/population 6 and RESTOCK box effect are implemented in
 schema 15 with a private post-draw discard choice. Multiple active copies,
 simultaneous activations, and concurrent Research remain outside this subset;
