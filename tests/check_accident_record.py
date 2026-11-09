@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 record = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert record["schema_version"] == 14 and record["full_game"] is False
-assert record["policy_version"] == "caller-commands-v14"
+assert record["schema_version"] == 15 and record["full_game"] is False
+assert record["policy_version"] == "caller-commands-v15"
 assert [c["kind"] for c in record["commands"]] == [0, 7, 7, 8]
 points = record["checkpoints"]
 assert points[0]["phase"] == 14 and points[0]["accident"] is None

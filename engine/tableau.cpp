@@ -16,9 +16,18 @@ void player(Player p) { if (p > 1) throw std::invalid_argument("invalid player")
 Kind known(const Catalog& catalog, Card card) {
     const auto found = catalog.find(card);
     if (found == catalog.end() || (found->second != Kind::kale_farm && found->second != Kind::flag &&
-                                   found->second != Kind::potato_farm))
+                                   found->second != Kind::potato_farm && found->second != Kind::fuel_cells))
         throw std::invalid_argument("unsupported Building definition");
     return found->second;
+}
+std::optional<Card> fuel_cells(const base_rules::Colony& colony, const Catalog& catalog) {
+    std::optional<Card> result;
+    for (const auto card : colony.buildings)
+        if (known(catalog, card) == Kind::fuel_cells) {
+            if (result) throw std::invalid_argument("multiple Fuel Cells are outside this reviewed subset");
+            result = card;
+        }
+    return result;
 }
 bool potato_farm_active(const base_rules::Colony& colony, const Catalog& catalog) {
     return std::any_of(colony.buildings.begin(), colony.buildings.end(), [&](Card card) {
@@ -59,12 +68,14 @@ std::uint64_t build_cost(Kind kind) {
     if (kind == Kind::kale_farm) return 2;
     if (kind == Kind::flag) return 0;
     if (kind == Kind::potato_farm) return 5;
+    if (kind == Kind::fuel_cells) return 3;
     throw std::invalid_argument("unsupported Building definition");
 }
 std::uint64_t printed_people(Kind kind) {
     if (kind == Kind::kale_farm) return 5;
     if (kind == Kind::flag) return 0;
     if (kind == Kind::potato_farm) return 6;
+    if (kind == Kind::fuel_cells) return 6;
     throw std::invalid_argument("unsupported Building definition");
 }
 void validate(const base_rules::State& state, const Catalog& catalog, base_rules::EffectScope scope) {
@@ -78,11 +89,13 @@ void validate(const base_rules::State& state, const Catalog& catalog, base_rules
         physical.insert(colony.hand.begin(), colony.hand.end());
         physical.insert(colony.buildings.begin(), colony.buildings.end());
         (void)total_people(colony, catalog);
+        (void)fuel_cells(colony, catalog);
     }
     physical.insert(state.building_deck.begin(), state.building_deck.end());
     physical.insert(state.building_discard.begin(), state.building_discard.end());
     for (const auto& [card, kind] : catalog)
-        if ((kind != Kind::kale_farm && kind != Kind::flag && kind != Kind::potato_farm) ||
+        if ((kind != Kind::kale_farm && kind != Kind::flag && kind != Kind::potato_farm &&
+             kind != Kind::fuel_cells) ||
             !physical.contains(card))
             throw std::invalid_argument("invalid subset Building catalog entry");
 }
@@ -90,9 +103,12 @@ void validate_choice(const base_rules::State& state, const Catalog& catalog, Pla
     player(p);
     const auto& colony = state.colonies[p];
     if (choice.action == base_rules::WorkAction::build) {
-        if (!choice.build || !choice.box_targets.empty()) throw std::invalid_argument("BUILD needs one target");
-        known(catalog, *choice.build);
-        const auto cost = build_cost(known(catalog, *choice.build));
+        if (!choice.build || !choice.box_targets.empty() || choice.spend_fuel_cells)
+            throw std::invalid_argument("BUILD needs one target and no RESTOCK modifier");
+        const auto kind = known(catalog, *choice.build);
+        if (kind == Kind::fuel_cells && fuel_cells(colony, catalog))
+            throw std::invalid_argument("multiple Fuel Cells are outside this reviewed subset");
+        const auto cost = build_cost(kind);
         const auto can_use_food = potato_farm_active(colony, catalog);
         if (std::find(colony.hand.begin(), colony.hand.end(), *choice.build) == colony.hand.end() ||
             choice.food_payment > cost || (!can_use_food && choice.food_payment != 0) ||
@@ -106,10 +122,18 @@ void validate_choice(const base_rules::State& state, const Catalog& catalog, Pla
         for (const auto card : choice.box_targets)
             if (std::find(colony.buildings.begin(), colony.buildings.end(), card) == colony.buildings.end())
                 throw std::invalid_argument("box target must be an owned Building");
+        if (choice.spend_fuel_cells) {
+            const auto target = fuel_cells(colony, catalog);
+            const auto added = target ? static_cast<std::uint64_t>(std::count(
+                choice.box_targets.begin(), choice.box_targets.end(), *target)) : 0;
+            const auto current = target && colony.boxes.contains(*target) ? colony.boxes.at(*target) : 0;
+            if (!target || (current == 0 && added == 0))
+                throw std::invalid_argument("Fuel Cells requires a box before or during RESTOCK");
+        }
     } else if (choice.action != base_rules::WorkAction::mine && choice.action != base_rules::WorkAction::farm &&
                choice.action != base_rules::WorkAction::research) {
         throw std::invalid_argument("invalid tableau Work action");
-    } else if (choice.build || !choice.box_targets.empty() || choice.food_payment != 0) {
+    } else if (choice.build || !choice.box_targets.empty() || choice.food_payment != 0 || choice.spend_fuel_cells) {
         throw std::invalid_argument("unexpected Work targets");
     }
 }
@@ -128,12 +152,24 @@ std::vector<Choice> options(const base_rules::State& state, const Catalog& catal
             if (colony.resources.money >= cost - food)
                 result.push_back({base_rules::WorkAction::build, card, {}, food});
     }
-    if (colony.buildings.empty()) result.push_back({base_rules::WorkAction::restock});
+    const auto cells = fuel_cells(colony, catalog);
+    const auto append_restock = [&](std::vector<Card> targets) {
+        Choice choice{base_rules::WorkAction::restock, std::nullopt, std::move(targets)};
+        result.push_back(choice);
+        if (cells) {
+            const auto current = colony.boxes.contains(*cells) ? colony.boxes.at(*cells) : 0;
+            const auto added = static_cast<std::uint64_t>(std::count(choice.box_targets.begin(), choice.box_targets.end(), *cells));
+            if (current > 0 || added > 0) {
+                choice.spend_fuel_cells = true;
+                result.push_back(std::move(choice));
+            }
+        }
+    };
+    if (colony.buildings.empty()) append_restock({});
     else
         for (std::size_t i = 0; i < colony.buildings.size(); ++i)
             for (std::size_t j = i; j < colony.buildings.size(); ++j)
-                result.push_back({base_rules::WorkAction::restock, std::nullopt,
-                                  {colony.buildings[i], colony.buildings[j]}});
+                append_restock({colony.buildings[i], colony.buildings[j]});
     return result;
 }
 population::Result lose_people(base_rules::State& state, const Catalog& catalog, Player p,
@@ -174,6 +210,11 @@ WorkRecord resolve(base_rules::State& state, const Catalog& catalog, const std::
     if (!((schedule[0] == 0 && schedule[1] == 1) || (schedule[0] == 1 && schedule[1] == 0)))
         throw std::invalid_argument("invalid tableau schedule");
     for (Player p = 0; p < 2; ++p) validate_choice(state, catalog, p, choices[p]);
+    const bool using_fuel_cells = choices[0].spend_fuel_cells || choices[1].spend_fuel_cells;
+    if ((choices[0].spend_fuel_cells && choices[1].spend_fuel_cells) ||
+        (using_fuel_cells && (choices[0].action == base_rules::WorkAction::research ||
+                              choices[1].action == base_rules::WorkAction::research)))
+        throw std::invalid_argument("Fuel Cells draw timing with another Work draw is outside this subset");
     auto next = state;
     WorkRecord record{{{choices[0].action, choices[1].action}, schedule, {}, seed,
                        state.building_shuffle_index, state.building_shuffle_index}, choices, {}};
@@ -205,6 +246,20 @@ WorkRecord resolve(base_rules::State& state, const Catalog& catalog, const std::
             for (const auto card : choice.box_targets) {
                 add(colony.boxes[card], 1);
                 record.effects.push_back({p, EffectKind::place_box, card, 1});
+            }
+            if (choice.spend_fuel_cells) {
+                const auto card = *fuel_cells(colony, catalog);
+                --colony.boxes.at(card);
+                record.effects.push_back({p, EffectKind::spend_box, card, 1});
+                add(colony.resources.money, 4);
+                record.effects.push_back({p, EffectKind::money_gain, card, 4});
+                std::array<std::uint32_t, 2> counts{};
+                counts[p] = 1;
+                const auto draws = base_rules::draw_buildings(next, counts, schedule, seed,
+                    base_rules::DrawScope::caller_verified_unmodified_draw);
+                record.base.drawn[p] = draws.drawn[p];
+                for (const auto drawn : draws.drawn[p])
+                    record.effects.push_back({p, EffectKind::draw_card, drawn, 1});
             }
             break;
         case base_rules::WorkAction::farm: farm(next, catalog, p, record.effects); break;

@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 record = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert record["schema_version"] == 14 and record["full_game"] is False
+assert record["schema_version"] == 15 and record["full_game"] is False
 assert len(record["commands"]) == len(record["checkpoints"]) == 4
 final = record["final"]
 player = final["colonies"]["players"][0]

@@ -350,7 +350,7 @@ void budget_cuts_money_floor() {
             no_money.snapshot().colonies.colonies[0].resources.money == 0,
             "Budget Cuts changed a zero-money colony");
     const auto replay = session::record(input, {{}});
-    require(session::verify(replay) == replay.checkpoints.back() && replay.schema == 14,
+    require(session::verify(replay) == replay.checkpoints.back() && replay.schema == 15,
             "Budget Cuts did not survive deterministic session replay");
 }
 } // namespace

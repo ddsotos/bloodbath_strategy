@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::string_view(argv[1]) == "--json") {
             const auto trace = ses::record(partial_butler(), {{}});
-            require(trace.schema == 14, "assessment trace schema incorrect");
+            require(trace.schema == 15, "assessment trace schema incorrect");
             std::cout << ses::serialize_record(trace);
             return 0;
         }

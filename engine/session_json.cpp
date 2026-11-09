@@ -90,7 +90,8 @@ void choice(std::ostream& out, const tableau::Choice& value) {
     out << "{\"action\":" << static_cast<unsigned>(value.action) << ",\"build\":";
     if (value.build) out << *value.build; else out << "null";
     out << ",\"box_targets\":"; cards(out, value.box_targets);
-    out << ",\"food_payment\":" << value.food_payment << '}';
+    out << ",\"food_payment\":" << value.food_payment << ",\"spend_fuel_cells\":"
+        << (value.spend_fuel_cells ? "true" : "false") << '}';
 }
 void tableau_record(std::ostream& out, const std::optional<tableau::WorkRecord>& value) {
     if (!value) { out << "null"; return; }
@@ -100,6 +101,11 @@ void tableau_record(std::ostream& out, const std::optional<tableau::WorkRecord>&
         << static_cast<unsigned>(value->base.resolution_order[1]) << "],\"seed\":" << value->base.seed
         << ",\"shuffles_before\":" << value->base.shuffles_before << ",\"shuffles_after\":" << value->base.shuffles_after
         << ",\"drawn\":["; cards(out, value->base.drawn[0]); out << ','; cards(out, value->base.drawn[1]);
+    out << "],\"fuel_cells_discarded\":[";
+    for (Player p = 0; p < 2; ++p) {
+        if (p) out << ',';
+        if (value->fuel_cells_discarded[p]) out << *value->fuel_cells_discarded[p]; else out << "null";
+    }
     out << "],\"effects\":[";
     bool first = true;
     for (const auto& effect : value->effects) {
@@ -209,6 +215,8 @@ void snapshot(std::ostream& out, const Snapshot& value, const Config& config) {
     if (!value.budget_cuts) out << "null";
     else out << "{\"money_loss\":[" << value.budget_cuts->money_loss[0] << ','
         << value.budget_cuts->money_loss[1] << "]}";
+    out << ",\"pending_fuel_cells_discard_player\":";
+    if (value.pending_fuel_cells_discard) out << static_cast<unsigned>(*value.pending_fuel_cells_discard); else out << "null";
     out << ",\"pending_robot\":";
     if (value.pending_robot) out << static_cast<unsigned>(*value.pending_robot); else out << "null";
     out << ",\"loss_commitments\":[";
@@ -224,9 +232,9 @@ std::string serialize_record(const Replay& replay) {
     const auto& config = replay.initial.config;
     std::ostringstream out;
     out.imbue(std::locale::classic());
-    out << "{\"schema_version\":14,\"scope\":\"" << (config.tableau_enabled ?
+    out << "{\"schema_version\":15,\"scope\":\"" << (config.tableau_enabled ?
            "conditional-reviewed-tableau-no-external-modifiers" : "conditional-no-buildings-no-modifiers")
-        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v14\","
+        << "\",\"full_game\":false,\"policy_version\":\"caller-commands-v15\","
            "\"branch\":\"supplied-conditional-trace\",\"rng_version\":\"event-splitmix64-v1\","
            "\"session_hash\":\"" << replay.subset_hash << "\",\"base_rules_hash\":\""
         << BLOODBATH_BASE_RULES_HASH << "\",\"progression_population_hash\":\""
@@ -262,7 +270,8 @@ std::string serialize_record(const Replay& replay) {
             << ",\"schedule\":[" << static_cast<unsigned>(command.schedule[0]) << ','
             << static_cast<unsigned>(command.schedule[1]) << "],\"cards\":";
         cards(out, command.cards);
-        out << ",\"food_payment\":" << command.food_payment << '}';
+        out << ",\"food_payment\":" << command.food_payment << ",\"fuel_cells_spend\":"
+            << (command.fuel_cells_spend ? "true" : "false") << '}';
     }
     out << "],\"checkpoints\":[";
     first = true;

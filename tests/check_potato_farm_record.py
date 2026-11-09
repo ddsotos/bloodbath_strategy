@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 record = json.loads(subprocess.check_output([sys.argv[1], "--json"], text=True))
-assert record["schema_version"] == 14 and record["full_game"] is False
+assert record["schema_version"] == 15 and record["full_game"] is False
 assert record["commands"][1]["food_payment"] == 1
 assert record["checkpoints"][1]["work_choices"][0]["food_payment"] == 1
 assert record["checkpoints"][1]["work_choices"][1] is None

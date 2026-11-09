@@ -1,4 +1,4 @@
-conditional-session-v4; not a complete official game or legal setup sampler
+conditional-session-v5; not a complete official game or legal setup sampler
 Publisher-authored English rulebook reproduction SHA256
 63bff1b40316f317c880f3f947c487b65d01358aaa3dc58edfe705766b0b96c6
 p2 Accident card image:-3 people;p6 loss Events affect each player.
@@ -121,3 +121,12 @@ loss transfer is recorded as0; terminal ordering remains unimplemented.
 Schema14 adds Potato Farm (p10): cost5,printed population6,FARM+2 food and
 food may substitute for money only on payments. Build commits record the hidden
 food split; losses like Budget Cuts still remove money only.
+Schema15 adds Fuel Cells (p10): RESTOCK may spend one box from an in-play copy
+for +4 money,draw one Building,then opens a private one-card discard choice.
+The session pauses its active Work until that choice commits,then exposes the
+public discard. This subset permits one Fuel Cells in play and one activating
+player per Work; concurrent Research or a second FuelCells draw is rejected as
+unsupported timing,with the Work unchanged. Draw uses the existing seeded
+Building-deck recycle and draw record. Replay/JSON schema15 stores activation,
+draw,discard and pending actor. The source edition/physical printing remains
+unverified; no broader RESTOCK modifier semantics are inferred.

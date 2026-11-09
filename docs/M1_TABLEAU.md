@@ -132,7 +132,9 @@ Other Buildings, legal catalogs/setup, general effects, Building-aware losses,
 ties, unresolved priorities and production shadow continuation remain open.
 No opening Research recommendation follows from this conditional subset.
 
-Schema 14 includes the source-reviewed Flag and Potato Farm in the typed subset; see
+Schema 15 includes the source-reviewed Flag, Potato Farm, and Fuel Cells in the typed subset; see
 [M1_FLAG.md](M1_FLAG.md) for its metadata, Hunger exclusion and supported
 nonterminal loss behavior and [Potato Farm audit](M1_POTATO_FARM_AUDIT.md) for
-payment substitution. The card catalog remains incomplete.
+payment substitution. See [Fuel Cells audit](M1_FUEL_CELLS_AUDIT.md) for its
+RESTOCK draw/discard frame and explicit timing limits. The card catalog remains
+incomplete.

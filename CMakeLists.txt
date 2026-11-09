@@ -75,6 +75,9 @@ if(BUILD_TESTING)
   add_executable(potato_farm_tests tests/potato_farm_tests.cpp)
   target_link_libraries(potato_farm_tests PRIVATE bloodbath)
   add_test(NAME potato_farm_contracts COMMAND potato_farm_tests)
+  add_executable(fuel_cells_tests tests/fuel_cells_tests.cpp)
+  target_link_libraries(fuel_cells_tests PRIVATE bloodbath)
+  add_test(NAME fuel_cells_contracts COMMAND fuel_cells_tests)
   add_executable(robot_tests tests/robot_tests.cpp)
   target_link_libraries(robot_tests PRIVATE bloodbath)
   add_test(NAME robot_contracts COMMAND robot_tests)
@@ -109,6 +112,8 @@ if(BUILD_TESTING)
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_flag_record.py $<TARGET_FILE:flag_tests>)
     add_test(NAME potato_farm_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_potato_farm_record.py $<TARGET_FILE:potato_farm_tests>)
+    add_test(NAME fuel_cells_json COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_fuel_cells_record.py $<TARGET_FILE:fuel_cells_tests>)
     add_test(NAME butler_json COMMAND ${Python3_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/tests/check_butler_record.py $<TARGET_FILE:butler_tests>)
     add_test(NAME robot_choices_json COMMAND ${Python3_EXECUTABLE}

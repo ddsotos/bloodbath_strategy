@@ -6,16 +6,18 @@
 namespace bloodbath::tableau {
 inline constexpr const char* manifest_hash = BLOODBATH_TABLEAU_HASH;
 using Card = base_rules::Card;
-enum class Kind { kale_farm, flag, potato_farm };
+enum class Kind { kale_farm, flag, potato_farm, fuel_cells };
 using Catalog = std::map<Card, Kind>;
 struct Choice {
     base_rules::WorkAction action = base_rules::WorkAction::mine;
     std::optional<Card> build = std::nullopt;
     std::vector<Card> box_targets{};
     std::uint64_t food_payment = 0;
+    bool spend_fuel_cells = false;
     bool operator==(const Choice&) const = default;
 };
-enum class EffectKind { pay_money, enter_play, farm_base, farm_bonus, place_box, mine_base, draw_card, money_gain, pay_food };
+enum class EffectKind { pay_money, enter_play, farm_base, farm_bonus, place_box, mine_base, draw_card, money_gain,
+                        pay_food, spend_box };
 struct EffectRecord {
     Player player;
     EffectKind kind;
@@ -27,6 +29,7 @@ struct WorkRecord {
     base_rules::WorkRecord base;
     std::array<Choice, 2> choices;
     std::vector<EffectRecord> effects;
+    std::array<std::optional<Card>, 2> fuel_cells_discarded{};
     std::string subset_hash = manifest_hash;
     bool operator==(const WorkRecord&) const = default;
 };
